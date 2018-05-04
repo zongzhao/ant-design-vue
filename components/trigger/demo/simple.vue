@@ -1,7 +1,7 @@
 <script>
 import Trigger from '../index'
 import '../assets/index.less'
-import { Input, Button, Checkbox } from 'antd'
+import { Input, Button } from 'antd'
 function getPopupAlign (state) {
   return {
     offset: [state.offsetX, state.offsetY],
