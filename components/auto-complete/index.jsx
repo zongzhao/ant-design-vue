@@ -4,16 +4,16 @@ import Select, { AbstractSelectProps, SelectValue } from '../select'
 import Input from '../input'
 import InputElement from './InputElement'
 import PropTypes from '../_util/vue-types'
-import { getComponentFromProp, getOptionProps, filterEmpty } from '../_util/props-util'
+import { getComponentFromProp, getOptionProps, filterEmpty, isValidElement } from '../_util/props-util'
 
-const DataSourceItemObject = PropTypes.shape({
-  value: String,
-  text: String,
-}).loose
-const DataSourceItemType = PropTypes.oneOfType([
-  PropTypes.string,
-  DataSourceItemObject,
-]).isRequired
+// const DataSourceItemObject = PropTypes.shape({
+//   value: String,
+//   text: String,
+// }).loose
+// const DataSourceItemType = PropTypes.oneOfType([
+//   PropTypes.string,
+//   DataSourceItemObject,
+// ]).isRequired
 
 // export interface AutoCompleteInputProps {
 //   onChange?: React.FormEventHandler<any>;
@@ -24,7 +24,7 @@ const AutoCompleteProps = {
   ...AbstractSelectProps,
   value: SelectValue,
   defaultValue: SelectValue,
-  dataSource: PropTypes.arrayOf(DataSourceItemType),
+  dataSource: PropTypes.array,
   optionLabelProp: String,
   dropdownMatchSelectWidth: PropTypes.bool,
   // onChange?: (value: SelectValue) => void;
@@ -63,19 +63,15 @@ export default {
     },
 
     focus () {
-      this.$nextTick(() => {
-        if (this.$refs.select) {
-          this.$refs.select.focus()
-        }
-      })
+      if (this.$refs.select) {
+        this.$refs.select.focus()
+      }
     },
 
     blur () {
-      this.$nextTick(() => {
-        if (this.$refs.select) {
-          this.$refs.select.blur()
-        }
-      })
+      if (this.$refs.select) {
+        this.$refs.select.blur()
+      }
     },
   },
 
@@ -97,6 +93,9 @@ export default {
       options = childArray
     } else {
       options = dataSource ? dataSource.map((item) => {
+        if (isValidElement(item)) {
+          return item
+        }
         switch (typeof item) {
           case 'string':
             return <Option key={item}>{item}</Option>

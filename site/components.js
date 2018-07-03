@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import {
   Affix,
-  // Anchor,
+  Anchor,
   AutoComplete,
   Alert,
   Avatar,
@@ -19,12 +19,12 @@ import {
   DatePicker,
   Divider,
   Dropdown,
-  // Form,
+  Form,
   Icon,
   Input,
   InputNumber,
   Layout,
-  // List,
+  List,
   LocaleProvider,
   message,
   Menu,
@@ -57,6 +57,8 @@ import {
 } from 'antd'
 
 Vue.component(Affix.name, Affix) // a-affix
+Vue.component(Anchor.name, Anchor)
+Vue.component(Anchor.Link.name, Anchor.Link)
 Vue.component(AutoComplete.name, AutoComplete)
 Vue.component(Alert.name, Alert)
 Vue.component(Avatar.name, Avatar)
@@ -85,7 +87,8 @@ Vue.component(DatePicker.WeekPicker.name, DatePicker.WeekPicker)
 Vue.component(Divider.name, Divider)
 Vue.component(Dropdown.name, Dropdown)
 Vue.component(Dropdown.Button.name, Dropdown.Button)
-// Vue.component(Form.name, Form)
+Vue.component(Form.name, Form)
+Vue.component(Form.Item.name, Form.Item)
 Vue.component(Icon.name, Icon)
 Vue.component(Input.name, Input)
 Vue.component(Input.Group.name, Input.Group)
@@ -97,7 +100,9 @@ Vue.component(Layout.Header.name, Layout.Header)
 Vue.component(Layout.Footer.name, Layout.Footer)
 Vue.component(Layout.Sider.name, Layout.Sider)
 Vue.component(Layout.Content.name, Layout.Content)
-// Vue.component(List.name, List)
+Vue.component(List.name, List)
+Vue.component(List.Item.name, List.Item)
+Vue.component(List.Item.Meta.name, List.Item.Meta)
 Vue.component(LocaleProvider.name, LocaleProvider)
 Vue.component(Menu.name, Menu)
 Vue.component(Menu.Item.name, Menu.Item)

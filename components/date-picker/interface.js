@@ -31,6 +31,7 @@ export const PickerProps = () => ({
   pickerClass: PropTypes.string,
   pickerInputClass: PropTypes.string,
   timePicker: PropTypes.any,
+  autoFocus: PropTypes.bool,
 })
 
 export const SinglePickerProps = () => ({
@@ -57,7 +58,7 @@ export const MonthPickerProps = () => ({
 })
 function isMomentArray (value) {
   if (Array.isArray(value)) {
-    return value.length === 0 || !!value.find((val) => val === undefined || moment.isMoment(val))
+    return value.length === 0 || value.findIndex((val) => val === undefined || moment.isMoment(val)) !== -1
   }
   return false
 }

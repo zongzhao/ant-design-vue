@@ -47,6 +47,7 @@ const inputNumberProps = {
   // onKeyUp: PropTypes.func,
   prefixCls: PropTypes.string,
   tabIndex: PropTypes.string,
+  placeholder: PropTypes.string,
   disabled: PropTypes.bool,
   // onFocus: PropTypes.func,
   // onBlur: PropTypes.func,
@@ -104,6 +105,9 @@ export default {
   },
   mounted () {
     this.$nextTick(() => {
+      if (this.autoFocus && !this.disabled) {
+        this.focus()
+      }
       this.updatedFunc()
     })
   },
@@ -491,8 +495,9 @@ export default {
     const inputDisplayValueFormat = this.formatWrapper(inputDisplayValue)
     const isUpDisabled = !!upDisabledClass || disabled || readOnly
     const isDownDisabled = !!downDisabledClass || disabled || readOnly
+    const { mouseenter = noop, mouseleave = noop, mouseover = noop, mouseout = noop } = this.$listeners
     const contentProps = {
-      on: this.$listeners,
+      on: { mouseenter, mouseleave, mouseover, mouseout },
       class: classes,
     }
     const upHandlerProps = {
@@ -569,7 +574,6 @@ export default {
             onBlur={this.onBlur}
             onKeydown={editable ? this.onKeyDown : noop}
             onKeyup={editable ? this.onKeyUp : noop}
-            autoFocus={this.autoFocus}
             maxLength={this.maxLength}
             readOnly={this.readOnly}
             disabled={this.disabled}
@@ -578,7 +582,7 @@ export default {
             step={this.step}
             name={this.name}
             id={this.id}
-            onChange={this.onChange}
+            onInput={this.onChange}
             ref='inputRef'
             value={inputDisplayValueFormat}
             pattern={this.pattern}

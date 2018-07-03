@@ -1,7 +1,7 @@
 /* @remove-on-es-build-begin */
 // this file is not used if use https://github.com/ant-design/babel-plugin-import
 const ENV = process.env.NODE_ENV
-if (ENV !== 'production' &&
+if (ENV !== 'production' && ENV !== 'test' &&
     typeof console !== 'undefined' &&
     console.warn &&
     typeof window !== 'undefined') {
@@ -14,7 +14,7 @@ if (ENV !== 'production' &&
 
 import { default as Affix } from './affix'
 
-// import { default as Anchor } from './anchor'
+import { default as Anchor } from './anchor'
 
 import { default as AutoComplete } from './auto-complete'
 
@@ -50,7 +50,7 @@ import { default as Divider } from './divider'
 
 import { default as Dropdown } from './dropdown'
 
-// import { default as Form } from './form'
+import { default as Form } from './form'
 
 import { default as Icon } from './icon'
 
@@ -60,7 +60,7 @@ import { default as InputNumber } from './input-number'
 
 import { default as Layout } from './layout'
 
-// import { default as List } from './list'
+import { default as List } from './list'
 
 import { default as LocaleProvider } from './locale-provider'
 
@@ -122,6 +122,8 @@ import { default as version } from './version'
 
 const components = [
   Affix,
+  Anchor,
+  Anchor.Link,
   AutoComplete,
   Alert,
   Avatar,
@@ -148,6 +150,8 @@ const components = [
   Divider,
   Dropdown,
   Dropdown.Button,
+  Form,
+  Form.Item,
   Icon,
   Input,
   Input.Group,
@@ -159,6 +163,9 @@ const components = [
   Layout.Footer,
   Layout.Sider,
   Layout.Content,
+  List,
+  List.Item,
+  List.Item.Meta,
   LocaleProvider,
   Menu,
   Menu.Item,
@@ -221,6 +228,7 @@ export {
   message,
   notification,
   Affix,
+  Anchor,
   AutoComplete,
   Alert,
   Avatar,
@@ -237,10 +245,12 @@ export {
   DatePicker,
   Divider,
   Dropdown,
+  Form,
   Icon,
   Input,
   InputNumber,
   Layout,
+  List,
   LocaleProvider,
   Menu,
   Modal,

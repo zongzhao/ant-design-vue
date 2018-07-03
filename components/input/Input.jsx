@@ -1,8 +1,8 @@
-
+import classNames from 'classnames'
 import TextArea from './TextArea'
 import omit from 'omit.js'
 import inputProps from './inputProps'
-import { hasProp, getComponentFromProp } from '../_util/props-util'
+import { hasProp, getComponentFromProp, getStyle, getClass } from '../_util/props-util'
 
 function fixControlledValue (value) {
   if (typeof value === 'undefined' || value === null) {
@@ -12,6 +12,7 @@ function fixControlledValue (value) {
 }
 
 export default {
+  inheritAttrs: false,
   name: 'AInput',
   props: {
     ...inputProps,
@@ -26,7 +27,12 @@ export default {
       stateValue: fixControlledValue(!hasProp(this, 'value') ? defaultValue : value),
     }
   },
-  computed: {
+  mounted () {
+    this.$nextTick(() => {
+      if (this.autoFocus) {
+        this.focus()
+      }
+    })
   },
   watch: {
     value (val) {
@@ -96,10 +102,15 @@ export default {
         [wrapperClassName]: (addonBefore || addonAfter),
       }
 
+      const groupClassName = classNames(`${props.prefixCls}-group-wrapper`, {
+        [`${props.prefixCls}-group-wrapper-sm`]: props.size === 'small',
+        [`${props.prefixCls}-group-wrapper-lg`]: props.size === 'large',
+      })
       if (addonBefore || addonAfter) {
         return (
           <span
-            class={`${props.prefixCls}-group-wrapper`}
+            class={groupClassName}
+            style={getStyle(this)}
           >
             <span class={className}>
               {addonBefore}
@@ -118,7 +129,7 @@ export default {
       )
     },
     renderLabeledIcon (children) {
-      const { prefixCls } = this.$props
+      const { prefixCls, size } = this.$props
       let prefix = getComponentFromProp(this, 'prefix')
       let suffix = getComponentFromProp(this, 'suffix')
       if (!prefix && !suffix) {
@@ -136,10 +147,14 @@ export default {
           {suffix}
         </span>
       ) : null
-
+      const affixWrapperCls = classNames(getClass(this), `${prefixCls}-affix-wrapper`, {
+        [`${prefixCls}-affix-wrapper-sm`]: size === 'small',
+        [`${prefixCls}-affix-wrapper-lg`]: size === 'large',
+      })
       return (
         <span
-          class={`${prefixCls}-affix-wrapper`}
+          class={affixWrapperCls}
+          style={getStyle(this)}
         >
           {prefix}
           {children}
@@ -167,7 +182,7 @@ export default {
           keydown: handleKeyDown,
           input: handleChange,
         },
-        class: getInputClassName(),
+        class: classNames(getInputClassName(), getClass(this)),
         ref: 'input',
       }
       return this.renderLabeledIcon(

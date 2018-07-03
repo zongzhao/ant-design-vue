@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import ConfirmDialog from './ConfirmDialog'
+
 export default function confirm (config) {
   const div = document.createElement('div')
   const el = document.createElement('div')

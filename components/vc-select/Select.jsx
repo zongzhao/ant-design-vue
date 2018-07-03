@@ -6,7 +6,7 @@ import classes from 'component-classes'
 import { Item as MenuItem, ItemGroup as MenuItemGroup } from '../vc-menu'
 import warning from 'warning'
 import Option from './Option'
-import { hasProp, getSlotOptions, getPropsData, getValueByProp as getValue, getComponentFromProp, getEvents, getClass } from '../_util/props-util'
+import { hasProp, getSlotOptions, getPropsData, getValueByProp as getValue, getComponentFromProp, getEvents, getClass, getStyle, getAttrs } from '../_util/props-util'
 import getTransitionProps from '../_util/getTransitionProps'
 import { cloneElement } from '../_util/vnode'
 import BaseMixin from '../_util/BaseMixin'
@@ -45,6 +45,7 @@ function chaining (...fns) {
   }
 }
 export default {
+  inheritAttrs: false,
   name: 'Select',
   mixins: [BaseMixin],
   props: {
@@ -200,6 +201,7 @@ export default {
         let { label, title } = val
         label = label === undefined ? this.labelMap.get(key) : label
         title = title === undefined ? this.titleMap.get(key) : title
+        title = typeof title === 'string' ? title.trim() : title
         labelArr.push([key, label === undefined ? key : label])
         titleArr.push([key, title])
       })
@@ -706,9 +708,10 @@ export default {
     },
     _getInputElement () {
       const props = this.$props
+      const attrs = getAttrs(this)
       const inputElement = props.getInputElement
         ? props.getInputElement()
-        : <input id={props.id} autoComplete='off'/>
+        : <input id={attrs.id} autoComplete='off'/>
       const inputCls = classnames(getClass(inputElement), {
         [`${props.prefixCls}-search__field`]: true,
       })
@@ -1271,17 +1274,21 @@ export default {
           }
           const singleValue = sValue[0]
           const key = singleValue.key
+          let title = this.titleMap.get(key) || this.labelMap.get(key)
+          if (Array.isArray(title)) {
+            title = ''
+          }
           selectedValue = (
             <div
               key='value'
               class={`${prefixCls}-selection-selected-value`}
-              title={this.titleMap.get(key) || this.labelMap.get(key)}
+              title={title}
               style={{
                 display: showSelectedValue ? 'block' : 'none',
                 opacity,
               }}
             >
-              {this.labelMap.get(sValue[0].key)}
+              {this.labelMap.get(key)}
             </div>
           )
         }
@@ -1462,10 +1469,12 @@ export default {
       }
       this._focused = true
       this.updateFocusClassName()
+      this.$emit('focus')
     },
     selectionRefBlur (e) {
       this._focused = false
       this.updateFocusClassName()
+      this.$emit('blur')
     },
   },
 
@@ -1501,6 +1510,7 @@ export default {
       selectionProps.attrs.tabIndex = props.disabled ? -1 : 0
     }
     const rootCls = {
+      ...getClass(this),
       [prefixCls]: true,
       [`${prefixCls}-open`]: openStatus,
       [`${prefixCls}-focused`]: openStatus || !!this._focused,
@@ -1542,6 +1552,7 @@ export default {
       >
         <div
           ref='rootRef'
+          style={getStyle(this)}
           class={classnames(rootCls)}
           // tabindex='-1'
           // onBlur={this.onOuterBlur}

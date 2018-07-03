@@ -2,7 +2,11 @@ language: node_js
 sudo: required
 node_js:
   - 8.2.1
+before_script:
+  - npm install vue vue-template-compiler
 script:
+  - COVERAGE=true npm run test
+  - npm run codecov
   - bash ./scripts/deploy-to-gh-pages.sh
 env:
   matrix:

@@ -10,6 +10,7 @@ const upLoadPropTypes = {
   // style: PropTypes.object,
   prefixCls: PropTypes.string,
   action: PropTypes.string,
+  name: PropTypes.string,
   // className: PropTypes.string,
   multiple: PropTypes.bool,
   disabled: PropTypes.bool,
@@ -28,6 +29,7 @@ const upLoadPropTypes = {
 }
 
 const AjaxUploader = {
+  name: 'ajaxUploader',
   mixins: [BaseMixin],
   props: upLoadPropTypes,
   data () {

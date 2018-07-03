@@ -1,5 +1,6 @@
 
 import * as moment from 'moment'
+import omit from 'lodash/omit'
 import MonthCalendar from '../vc-calendar/src/MonthCalendar'
 import VcDatePicker from '../vc-calendar/src/Picker'
 import classNames from 'classnames'
@@ -168,6 +169,8 @@ export default function createPicker (TheCalendar, props) {
           <input
             ref='input'
             disabled={props.disabled}
+            onFocus={focus}
+            onBlur={blur}
             readOnly
             value={(inputValue && inputValue.format(props.format)) || ''}
             placeholder={placeholder}
@@ -186,7 +189,7 @@ export default function createPicker (TheCalendar, props) {
           prefixCls: `${prefixCls}-picker-container`,
         },
         on: {
-          ...$listeners,
+          ...omit($listeners, 'change'),
           ...pickerProps.on,
         },
         style: props.popupStyle,
@@ -194,8 +197,9 @@ export default function createPicker (TheCalendar, props) {
       return (
         <span
           class={props.pickerClass}
-          onFocus={focus}
-          onBlur={blur}
+          // tabIndex={props.disabled ? -1 : 0}
+          // onFocus={focus}
+          // onBlur={blur}
         >
           <VcDatePicker
             {...vcDatePickerProps}

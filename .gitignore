@@ -63,6 +63,9 @@ dist
 lib
 es
 site-dist
+yarn.lock
+package-lock.json
+/coverage
 
 # 备份文件
 /components/test/*

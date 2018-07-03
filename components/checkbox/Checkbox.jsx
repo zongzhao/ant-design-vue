@@ -1,25 +1,37 @@
-
-import hasProp from '../_util/props-util'
+import classNames from 'classnames'
+import hasProp, { getClass, getStyle } from '../_util/props-util'
+import PropTypes from '../_util/vue-types'
 export default {
+  inheritAttrs: false,
   name: 'ACheckbox',
   props: {
     prefixCls: {
       default: 'ant-checkbox',
       type: String,
     },
-    defaultChecked: Boolean,
-    checked: { type: Boolean, default: undefined },
-    disabled: Boolean,
+    defaultChecked: PropTypes.bool,
+    checked: PropTypes.bool,
+    disabled: PropTypes.bool,
     isGroup: Boolean,
     value: [String, Number, Boolean],
     name: String,
+    id: String,
     indeterminate: Boolean,
+    type: PropTypes.string.def('checkbox'),
+    autoFocus: Boolean,
   },
   model: {
     prop: 'checked',
   },
   inject: {
     checkboxGroupContext: { default: null },
+  },
+  mounted () {
+    this.$nextTick(() => {
+      if (this.autoFocus) {
+        this.$refs.input.focus()
+      }
+    })
   },
   data () {
     const { checkboxGroupContext, checked, defaultChecked, value } = this
@@ -52,14 +64,13 @@ export default {
     handleChange (event) {
       const targetChecked = event.target.checked
       this.$emit('input', targetChecked)
-      const { name, value, checked, checkboxGroupContext, sChecked } = this
+      const { checked, checkboxGroupContext } = this
       if ((checked === undefined && !checkboxGroupContext) || (checkboxGroupContext && checkboxGroupContext.sValue === undefined)) {
         this.sChecked = targetChecked
       }
       const target = {
-        name,
-        value,
-        checked: !sChecked,
+        ...this.$props,
+        checked: targetChecked,
       }
       this.$emit('change', {
         target,
@@ -83,6 +94,12 @@ export default {
     blur () {
       this.$refs.input.blur()
     },
+    onFocus (e) {
+      this.$emit('focus', e)
+    },
+    onBlur (e) {
+      this.$emit('blur', e)
+    },
   },
   watch: {
     checked (val) {
@@ -93,7 +110,12 @@ export default {
     },
   },
   render () {
-    const { $props: props, checkboxGroupContext, checkboxClass, name, $slots, sChecked } = this
+    const { $props: props, checkboxGroupContext,
+      checkboxClass, name, $slots, sChecked,
+      onFocus,
+      onBlur,
+      id,
+    } = this
     const {
       prefixCls,
     } = props
@@ -103,16 +125,22 @@ export default {
       onChange = () => checkboxGroupContext.toggleOption({ value: props.value })
       disabled = props.disabled || checkboxGroupContext.disabled
     }
+    const classString = classNames(getClass(this), {
+      [`${prefixCls}-wrapper`]: true,
+    })
     return (
       <label
-        class={`${prefixCls}-wrapper`}
+        class={classString}
+        style={getStyle(this)}
         onMouseenter={this.onMouseEnter}
         onMouseleave={this.onMouseLeave}
       >
         <span class={checkboxClass}>
           <input name={name} type='checkbox' disabled={disabled}
             class={`${prefixCls}-input`} checked={sChecked}
-            onChange={onChange} ref='input'
+            onChange={onChange} ref='input' id={id}
+            onFocus={onFocus}
+            onBlur={onBlur}
           />
           <span class={`${prefixCls}-inner`} />
         </span>

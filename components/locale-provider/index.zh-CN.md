@@ -10,10 +10,10 @@ LocaleProvider 使用 Vue 的 [provide/inject](https://cn.vuejs.org/v2/api/#prov
 <template>
   <a-locale-provider :locale="zh_CN">
     <App />
-  <a-locale-provider>
+  </a-locale-provider>
 </template>
 <script>
-import zh_CN from 'antd/lib/locale-provider/zh_CN';
+import zh_CN from 'vue-antd-ui/lib/locale-provider/zh_CN';
 import 'moment/locale/zh-cn';
 export default {
   data() {
@@ -33,7 +33,7 @@ export default {
 <template>
   <a-locale-provider :locale="locales.en_US">
     <App />
-  <a-locale-provider>
+  </a-locale-provider>
 </template>
 <script>
 const { LocaleProvider, locales } = window.antd;

@@ -65,6 +65,7 @@ md.core.ruler.push('update_template', function replace ({ tokens }) {
   let style = ''
   let scopedStyle = ''
   let code = ''
+  let sourceCode = ''
   tokens.forEach(token => {
     if (token.type === 'html_block') {
       if (token.content.match(cnReg)) {
@@ -77,6 +78,7 @@ md.core.ruler.push('update_template', function replace ({ tokens }) {
       }
     }
     if (token.type === 'fence' && token.info === 'html' && token.markup === '```') {
+      sourceCode = token.content
       code = '````html\n' + token.content + '````'
       template = fetch(token.content, 'template')
       script = fetch(token.content, 'script')
@@ -93,6 +95,7 @@ md.core.ruler.push('update_template', function replace ({ tokens }) {
       style,
       us,
       cn,
+      sourceCode,
     }
     jsfiddle = md.utils.escapeHtml(JSON.stringify(jsfiddle))
     const codeHtml = code ? md.render(code) : ''
@@ -130,7 +133,7 @@ md.core.ruler.push('update_template', function replace ({ tokens }) {
 module.exports = {
   entry: {
     index: [
-      './site/index.js',
+      `./site/${process.env.ENTRY_INDEX || 'index'}.js`,
     ],
   },
   module: {
@@ -193,6 +196,7 @@ module.exports = {
     ],
   },
   resolve: {
+    modules: ['node_modules', path.join(__dirname, '../node_modules')],
     extensions: ['.js', '.jsx', '.vue', '.md'],
     alias: {
       'vue$': 'vue/dist/vue.esm.js',

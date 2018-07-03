@@ -13,6 +13,8 @@ export default {
     isGroup: Boolean,
     value: PropTypes.any,
     name: String,
+    id: String,
+    autoFocus: Boolean,
   },
   model: {
     prop: 'checked',
@@ -32,36 +34,25 @@ export default {
         : stateChecked,
     }
   },
-  computed: {
-    classes () {
-      const { prefixCls, disabled, stateChecked } = this
-      return {
-        [`${prefixCls}-wrapper`]: true,
-        [`${prefixCls}-wrapper-checked`]: stateChecked,
-        [`${prefixCls}-wrapper-disabled`]: disabled,
+  mounted () {
+    this.$nextTick(() => {
+      if (this.autoFocus) {
+        this.$refs.input.focus()
       }
-    },
-    checkboxClass () {
-      const { prefixCls, disabled, stateChecked } = this
-      return {
-        [`${prefixCls}`]: true,
-        [`${prefixCls}-checked`]: stateChecked,
-        [`${prefixCls}-disabled`]: disabled,
-      }
-    },
+    })
   },
   methods: {
     handleChange (event) {
       const targetChecked = event.target.checked
       this.$emit('input', targetChecked)
-      const { name, value, radioGroupContext, stateChecked } = this
+      const { name, value, radioGroupContext } = this
       if ((!hasProp(this, 'checked') && !radioGroupContext) || (radioGroupContext && radioGroupContext.value === undefined)) {
         this.stateChecked = targetChecked
       }
       const target = {
         name,
         value,
-        checked: !stateChecked,
+        checked: targetChecked,
       }
       if (this.radioGroupContext) {
         this.radioGroupContext.handleChange({ target })
@@ -77,6 +68,24 @@ export default {
         })
       }
     },
+    focus () {
+      this.$refs.input.focus()
+    },
+    blur () {
+      this.$refs.input.blur()
+    },
+    onFocus (e) {
+      this.$emit('focus', e)
+    },
+    onBlur (e) {
+      this.$emit('blur', e)
+    },
+    onMouseEnter (e) {
+      this.$emit('mouseenter', e)
+    },
+    onMouseLeave (e) {
+      this.$emit('mouseleave', e)
+    },
   },
   watch: {
     checked (val) {
@@ -87,13 +96,42 @@ export default {
     },
   },
   render () {
-    const { classes, checkboxClass, disabled, prefixCls, stateChecked, handleChange, name, $slots } = this
+    const { id, prefixCls,
+      stateChecked, handleChange, $slots,
+      onFocus,
+      onBlur,
+      onMouseEnter,
+      onMouseLeave,
+      radioGroupContext,
+    } = this
+    let { name, disabled } = this
+    if (radioGroupContext) {
+      name = radioGroupContext.name
+      disabled = disabled || radioGroupContext.disabled
+    }
+    const wrapperClassString = {
+      [`${prefixCls}-wrapper`]: true,
+      [`${prefixCls}-wrapper-checked`]: stateChecked,
+      [`${prefixCls}-wrapper-disabled`]: disabled,
+    }
+    const checkboxClass = {
+      [`${prefixCls}`]: true,
+      [`${prefixCls}-checked`]: stateChecked,
+      [`${prefixCls}-disabled`]: disabled,
+    }
+
     return (
-      <label class={classes}>
+      <label
+        class={wrapperClassString}
+        onMouseenter={onMouseEnter}
+        onMouseleave={onMouseLeave}
+      >
         <span class={checkboxClass}>
           <input name={name} type='radio' disabled={disabled}
             class={`${prefixCls}-input`} checked={stateChecked}
-            onChange={handleChange}
+            onChange={handleChange} id={id} ref='input'
+            onFocus={onFocus}
+            onBlur={onBlur}
           />
           <span class={`${prefixCls}-inner`} />
         </span>

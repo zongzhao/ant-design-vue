@@ -69,6 +69,7 @@ function dist (done) {
 
 function babelify (js, modules) {
   const babelConfig = getBabelCommonConfig(modules)
+  babelConfig.babelrc = false
   delete babelConfig.cacheDirectory
   if (modules === false) {
     babelConfig.plugins.push(replaceLib)
@@ -123,6 +124,7 @@ function compile (modules) {
   const source = [
     'components/**/*.js',
     'components/**/*.jsx',
+    '!components/*/__tests__/*',
   ]
   const jsFilesStream = babelify(gulp.src(source), modules)
   return merge2([less, jsFilesStream, assets])
@@ -252,7 +254,11 @@ gulp.task('compile-with-es', (done) => {
 })
 
 gulp.task('pub', ['check-git', 'compile'], (done) => {
-  pub(done)
+  if (!process.env.GITHUB_TOKEN) {
+    console.log('no GitHub token found, skip')
+  } else {
+    pub(done)
+  }
 })
 
 function reportError () {

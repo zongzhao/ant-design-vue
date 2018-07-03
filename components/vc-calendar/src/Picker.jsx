@@ -11,7 +11,7 @@ import moment from 'moment'
 import { setTimeout } from 'timers'
 function isMoment (value) {
   if (Array.isArray(value)) {
-    return value.length === 0 || !!value.find((val) => val === undefined || moment.isMoment(val))
+    return value.length === 0 || value.findIndex((val) => val === undefined || moment.isMoment(val)) !== -1
   } else {
     return value === undefined || moment.isMoment(value)
   }
@@ -111,7 +111,7 @@ const Picker = {
 
     onKeyDown (event) {
       if (event.keyCode === KeyCode.DOWN && !this.sOpen) {
-        this.open()
+        this.openCalendar()
         event.preventDefault()
       }
     },
@@ -177,8 +177,8 @@ const Picker = {
     },
 
     focusCalendar () {
-      if (this.sOpen && this.calendarInstance && this.calendarInstance.context) {
-        this.calendarInstance.context.focus()
+      if (this.sOpen && this.calendarInstance && this.calendarInstance.componentInstance) {
+        this.calendarInstance.componentInstance.focus()
       }
     },
   },

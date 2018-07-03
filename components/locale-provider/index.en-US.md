@@ -11,10 +11,10 @@
 <template>
   <a-locale-provider :locale="fr_FR">
     <App />
-  <a-locale-provider>
+  </a-locale-provider>
 </template>
 <script>
-import fr_FR from 'antd/lib/locale-provider/fr_FR';
+import fr_FR from 'vue-antd-ui/lib/locale-provider/fr_FR';
 import 'moment/locale/zh-cn';
 export default {
   data() {
@@ -34,7 +34,7 @@ Note: if you need to use antd's UMD dist file, please use `antd/dist/antd-with-l
 <template>
   <a-locale-provider :locale="locales.fr_FR">
     <App />
-  <a-locale-provider>
+  </a-locale-provider>
 </template>
 <script>
 const { LocaleProvider, locales } = window.antd;

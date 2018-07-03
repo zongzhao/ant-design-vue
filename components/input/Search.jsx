@@ -22,12 +22,21 @@ export default {
     },
     enterButton: PropTypes.oneOfType([PropTypes.bool, PropTypes.string, PropTypes.object]),
   },
-  computed: {
+  model: {
+    prop: 'value',
+    event: 'change.value',
   },
   methods: {
     onSearch (e) {
       this.$emit('search', this.$refs.input.stateValue)
       this.$refs.input.focus()
+    },
+    focus () {
+      this.$refs.input.focus()
+    },
+
+    blur () {
+      this.$refs.input.blur()
     },
     getButtonOrIcon () {
       const { prefixCls, size } = this
@@ -45,7 +54,7 @@ export default {
           },
         })
       } else if (enterButtonAsElement.tag === 'button') {
-        return cloneElement(enterButtonAsElement[0], {
+        return cloneElement(enterButtonAsElement, {
           on: {
             click: this.onSearch,
           },
@@ -93,14 +102,7 @@ export default {
         {...inputProps}
         class={inputClassName}
         ref='input'
-      >
-        {/* <Icon
-          slot='suffix'
-          class={`${prefixCls}-icon`}
-          onClick={this.onSearch}
-          type='search'
-        /> */}
-      </Input>
+      />
     )
   },
 }

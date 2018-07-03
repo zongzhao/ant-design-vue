@@ -1,5 +1,10 @@
 import isPlainObject from 'lodash/isPlainObject'
 
+function getType (fn) {
+  const match = fn && fn.toString().match(/^\s*function (\w+)/)
+  return match ? match[1] : ''
+}
+
 const camelizeRE = /-(\w)/g
 const camelize = (str) => {
   return str.replace(camelizeRE, (_, c) => c ? c.toUpperCase() : '')
@@ -40,9 +45,9 @@ const filterProps = (props, propsData = {}) => {
   return res
 }
 const getSlots = (ele) => {
-  let componentOptions = ele.componentOptions
+  let componentOptions = ele.componentOptions || {}
   if (ele.$vnode) {
-    componentOptions = ele.$vnode.componentOptions
+    componentOptions = ele.$vnode.componentOptions || {}
   }
   const children = componentOptions.children || []
   const slots = {}
@@ -54,6 +59,9 @@ const getSlots = (ele) => {
   return slots
 }
 const getSlotOptions = (ele) => {
+  if (ele.fnOptions) { // 函数式组件
+    return ele.fnOptions
+  }
   let componentOptions = ele.componentOptions
   if (ele.$vnode) {
     componentOptions = ele.$vnode.componentOptions
@@ -67,8 +75,11 @@ const getOptionProps = (instance) => {
     const props = (Ctor.options || {}).props || {}
     const res = {}
     for (const [k, v] of Object.entries(props)) {
-      if (v.default !== undefined) {
-        res[k] = typeof v.default === 'function' ? v.default() : v.default
+      const def = v.default
+      if (def !== undefined) {
+        res[k] = typeof def === 'function' && getType(v.type) !== 'Function'
+          ? def.call(instance)
+          : def
       }
     }
     return { ...res, ...propsData }
@@ -185,7 +196,7 @@ export function isEmptyElement (ele) {
 }
 
 export function filterEmpty (children = []) {
-  return children.filter(c => c.tag || c.text.trim() !== '')
+  return children.filter(c => c.tag || (c.text && c.text.trim() !== ''))
 }
 const initDefaultProps = (propTypes, defaultProps) => {
   Object.keys(defaultProps).forEach(k => {

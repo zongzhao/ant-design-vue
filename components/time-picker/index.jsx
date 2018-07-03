@@ -22,7 +22,7 @@ export function generateShowHourMinuteSecond (format) {
 }
 function isMoment (value) {
   if (Array.isArray(value)) {
-    return value.length === 0 || !!value.find((val) => val === undefined || moment.isMoment(val))
+    return value.length === 0 || value.findIndex((val) => val === undefined || moment.isMoment(val)) !== -1
   } else {
     return value === undefined || moment.isMoment(value)
   }
@@ -55,6 +55,8 @@ export const TimePickerProps = () => ({
   align: PropTypes.object,
   placement: PropTypes.any,
   transitionName: PropTypes.string,
+  autoFocus: PropTypes.bool,
+  addon: PropTypes.any,
 })
 
 export default {
@@ -146,6 +148,7 @@ export default {
         class: className,
         ref: 'timePicker',
         on: {
+          ...this.$listeners,
           change: this.handleChange,
           open: this.handleOpenClose,
           close: this.handleOpenClose,
