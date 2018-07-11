@@ -1,7 +1,5 @@
-'use strict'
-
-import React from 'react'
 import classnames from 'classnames'
+import { cloneElement } from '../../_util/vnode'
 import {
   lazyStartIndex,
   lazyEndIndex,
@@ -85,16 +83,16 @@ const getSlideStyle = function (spec) {
 
 const getKey = (child, fallbackKey) => child.key || fallbackKey
 
-const renderSlides = function (spec) {
+const renderSlides = function (spec, children) {
   let key
   const slides = []
   const preCloneSlides = []
   const postCloneSlides = []
-  const childrenCount = React.Children.count(spec.children)
+  const childrenCount = children.length
   const startIndex = lazyStartIndex(spec)
   const endIndex = lazyEndIndex(spec)
 
-  React.Children.forEach(spec.children, (elem, index) => {
+  children.forEach((elem, index) => {
     let child
     const childOnClickOptions = {
       message: 'children',
@@ -117,18 +115,22 @@ const renderSlides = function (spec) {
     let slideClasses = getSlideClasses({ ...spec, index })
     // push a cloned element of the desired slide
     slides.push(
-      React.cloneElement(child, {
+      cloneElement(child, {
         key: 'original' + getKey(child, index),
-        'data-index': index,
-        className: classnames(slideClasses, slideClass),
-        tabIndex: '-1',
-        'aria-hidden': !slideClasses['slick-active'],
+        domProps: {
+          tabIndex: '-1',
+          'data-index': index,
+          'aria-hidden': !slideClasses['slick-active'],
+        },
+        class: classnames(slideClasses, slideClass),
         style: { outline: 'none', ...(child.props.style || {}), ...childStyle },
-        onClick: e => {
-          child.props && child.props.onClick && child.props.onClick(e)
-          if (spec.focusOnSelect) {
-            spec.focusOnSelect(childOnClickOptions)
-          }
+        on: {
+          click: e => {
+            child.props && child.props.onClick && child.props.onClick(e)
+            if (spec.focusOnSelect) {
+              spec.focusOnSelect(childOnClickOptions)
+            }
+          },
         },
       })
     )
@@ -146,18 +148,22 @@ const renderSlides = function (spec) {
         }
         slideClasses = getSlideClasses({ ...spec, index: key })
         preCloneSlides.push(
-          React.cloneElement(child, {
+          cloneElement(child, {
             key: 'precloned' + getKey(child, key),
-            'data-index': key,
-            tabIndex: '-1',
-            className: classnames(slideClasses, slideClass),
-            'aria-hidden': !slideClasses['slick-active'],
+            class: classnames(slideClasses, slideClass),
+            domProps: {
+              tabIndex: '-1',
+              'data-index': key,
+              'aria-hidden': !slideClasses['slick-active'],
+            },
             style: { ...(child.props.style || {}), ...childStyle },
-            onClick: e => {
-              child.props && child.props.onClick && child.props.onClick(e)
-              if (spec.focusOnSelect) {
-                spec.focusOnSelect(childOnClickOptions)
-              }
+            on: {
+              click: e => {
+                child.props && child.props.onClick && child.props.onClick(e)
+                if (spec.focusOnSelect) {
+                  spec.focusOnSelect(childOnClickOptions)
+                }
+              },
             },
           })
         )
@@ -170,18 +176,22 @@ const renderSlides = function (spec) {
         }
         slideClasses = getSlideClasses({ ...spec, index: key })
         postCloneSlides.push(
-          React.cloneElement(child, {
+          cloneElement(child, {
             key: 'postcloned' + getKey(child, key),
-            'data-index': key,
-            tabIndex: '-1',
-            className: classnames(slideClasses, slideClass),
-            'aria-hidden': !slideClasses['slick-active'],
+            domProps: {
+              tabIndex: '-1',
+              'data-index': key,
+              'aria-hidden': !slideClasses['slick-active'],
+            },
+            class: classnames(slideClasses, slideClass),
             style: { ...(child.props.style || {}), ...childStyle },
-            onClick: e => {
-              child.props && child.props.onClick && child.props.onClick(e)
-              if (spec.focusOnSelect) {
-                spec.focusOnSelect(childOnClickOptions)
-              }
+            on: {
+              click: e => {
+                child.props && child.props.onClick && child.props.onClick(e)
+                if (spec.focusOnSelect) {
+                  spec.focusOnSelect(childOnClickOptions)
+                }
+              },
             },
           })
         )
@@ -196,19 +206,26 @@ const renderSlides = function (spec) {
   }
 }
 
-export class Track extends React.PureComponent {
-  render () {
-    const slides = renderSlides(this.props)
-    const { onMouseEnter, onMouseOver, onMouseLeave } = this.props
-    const mouseEvents = { onMouseEnter, onMouseOver, onMouseLeave }
+export default {
+  functional: true,
+  render (createElement, context) {
+    const { props, listeners, children } = context
+    const slides = renderSlides(props, children)
+    const { mouseenter, mouseover, mouseleave } = listeners
+    const mouseEvents = { mouseenter, mouseover, mouseleave }
+    const trackProps = {
+      class: 'slick-track',
+      style: props.trackStyle,
+      on: {
+        ...mouseEvents,
+      },
+    }
     return (
       <div
-        className='slick-track'
-        style={this.props.trackStyle}
-        {...mouseEvents}
+        {...trackProps}
       >
         {slides}
       </div>
     )
-  }
+  },
 }

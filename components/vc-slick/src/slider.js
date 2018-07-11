@@ -1,38 +1,59 @@
-'use strict'
-
-import React from 'react'
-import { InnerSlider } from './inner-slider'
 import json2mq from 'json2mq'
+import Vue from 'vue'
+import antRefDirective from '../../_util/antRefDirective'
+import BaseMixin from '../../_util/BaseMixin'
+import { cloneElement } from '../../_util/vnode'
+import { InnerSlider } from './inner-slider'
 import defaultProps from './default-props'
 import { canUseDOM } from './utils/innerSliderUtils'
 const enquire = canUseDOM() && require('enquire.js')
 
-export default class Slider extends React.Component {
-  constructor (props) {
-    super(props)
-    this.state = {
+Vue.use(antRefDirective)
+export default {
+  props: {
+    ...defaultProps,
+  },
+  mixins: [BaseMixin],
+  data () {
+    this._responsiveMediaHandlers = []
+    return {
       breakpoint: null,
     }
-    this._responsiveMediaHandlers = []
-  }
-
-  innerSliderRefHandler = ref => (this.innerSlider = ref);
-
-  media (query, handler) {
-    // javascript handler for  css media query
-    enquire.register(query, handler)
-    this._responsiveMediaHandlers.push({ query, handler })
-  }
-
+  },
+  methods: {
+    innerSliderRefHandler (ref) {
+      this.innerSlider = ref
+    },
+    media (query, handler) {
+      // javascript handler for  css media query
+      enquire.register(query, handler)
+      this._responsiveMediaHandlers.push({ query, handler })
+    },
+    slickPrev () {
+      this.innerSlider.slickPrev()
+    },
+    slickNext () {
+      this.innerSlider.slickNext()
+    },
+    slickGoTo (slide, dontAnimate = false) {
+      this.innerSlider.slickGoTo(slide, dontAnimate)
+    },
+    slickPause () {
+      this.innerSlider.pause('paused')
+    },
+    slickPlay () {
+      this.innerSlider.autoPlay('play')
+    },
+  },
   // handles responsive breakpoints
-  componentWillMount () {
+  beforeMount () {
     // performance monitoring
     // if (process.env.NODE_ENV !== 'production') {
     // const { whyDidYouUpdate } = require('why-did-you-update')
     // whyDidYouUpdate(React)
     // }
-    if (this.props.responsive) {
-      const breakpoints = this.props.responsive.map(
+    if (this.responsive) {
+      const breakpoints = this.responsive.map(
         breakpt => breakpt.breakpoint
       )
       // sort them in increasing order of their numerical value
@@ -65,38 +86,26 @@ export default class Slider extends React.Component {
           this.setState({ breakpoint: null })
         })
     }
-  }
-
-  componentWillUnmount () {
+  },
+  beforeDestroy () {
     this._responsiveMediaHandlers.forEach(function (obj) {
       enquire.unregister(obj.query, obj.handler)
     })
-  }
-
-  slickPrev = () => this.innerSlider.slickPrev();
-
-  slickNext = () => this.innerSlider.slickNext();
-
-  slickGoTo = (slide, dontAnimate = false) =>
-    this.innerSlider.slickGoTo(slide, dontAnimate);
-
-  slickPause = () => this.innerSlider.pause('paused');
-
-  slickPlay = () => this.innerSlider.autoPlay('play');
+  },
 
   render () {
     let settings
     let newProps
-    if (this.state.breakpoint) {
-      newProps = this.props.responsive.filter(
-        resp => resp.breakpoint === this.state.breakpoint
+    if (this.breakpoint) {
+      newProps = this.responsive.filter(
+        resp => resp.breakpoint === this.breakpoint
       )
       settings =
         newProps[0].settings === 'unslick'
           ? 'unslick'
-          : { ...defaultProps, ...this.props, ...newProps[0].settings }
+          : { ...this.$props, ...newProps[0].settings }
     } else {
-      settings = { ...defaultProps, ...this.props }
+      settings = { ...this.$props }
     }
 
     // force scrolling by one if centerMode is on
@@ -137,7 +146,7 @@ export default class Slider extends React.Component {
     }
 
     // makes sure that children is an array, even when there is only 1 child
-    let children = React.Children.toArray(this.props.children)
+    let children = this.$slot.default
 
     // Children may contain false or null, so we should filter them
     // children may also contain string filled with spaces (in certain cases where we use jsx strings)
@@ -178,7 +187,7 @@ export default class Slider extends React.Component {
           }
           if (k >= children.length) break
           row.push(
-            React.cloneElement(children[k], {
+            cloneElement(children[k], {
               key: 100 * i + 10 * j + k,
               tabIndex: -1,
               style: {
@@ -202,15 +211,24 @@ export default class Slider extends React.Component {
     }
 
     if (settings === 'unslick') {
-      const className = 'regular slider ' + (this.props.className || '')
-      return <div className={className}>{newChildren}</div>
+      const className = 'regular slider ' + (this.className || '')
+      return <div class={className}>{newChildren}</div>
     } else if (newChildren.length <= settings.slidesToShow) {
       settings.unslick = true
     }
+    const sliderProps = {
+      props: {
+        ...settings,
+      },
+      directives: [{
+        name: 'ant-ref',
+        value: this.innerSliderRefHandler,
+      }],
+    }
     return (
-      <InnerSlider ref={this.innerSliderRefHandler} {...settings}>
+      <InnerSlider {...sliderProps}>
         {newChildren}
       </InnerSlider>
     )
-  }
+  },
 }

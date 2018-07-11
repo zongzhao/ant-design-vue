@@ -1,24 +1,23 @@
-'use strict'
-
-import React from 'react'
 import classnames from 'classnames'
+import { cloneElement } from '../../_util/vnode'
 import { canGoNext } from './utils/innerSliderUtils'
 
-export class PrevArrow extends React.PureComponent {
-  clickHandler (options, e) {
+export const PrevArrow = {
+  functional: true,
+  clickHandler (options, handle, e) {
     if (e) {
       e.preventDefault()
     }
-    this.props.clickHandler(options, e)
-  }
-  render () {
+    handle(options, e)
+  },
+  render (createElement, context) {
+    const { props } = context
+    const { clickHandler, infinite, currentSlide, slideCount, slidesToShow } = props
     const prevClasses = { 'slick-arrow': true, 'slick-prev': true }
-    let prevHandler = this.clickHandler.bind(this, { message: 'previous' })
+    let prevHandler = this.clickHandler.bind(this, { message: 'previous' }, clickHandler)
 
     if (
-      !this.props.infinite &&
-      (this.props.currentSlide === 0 ||
-        this.props.slideCount <= this.props.slidesToShow)
+      !infinite && (currentSlide === 0 || slideCount <= slidesToShow)
     ) {
       prevClasses['slick-disabled'] = true
       prevHandler = null
@@ -26,21 +25,27 @@ export class PrevArrow extends React.PureComponent {
 
     const prevArrowProps = {
       key: '0',
-      'data-role': 'none',
-      className: classnames(prevClasses),
+      domProps: {
+        'data-role': 'none',
+      },
+      class: classnames(prevClasses),
       style: { display: 'block' },
-      onClick: prevHandler,
+      on: {
+        click: prevHandler,
+      },
     }
     const customProps = {
-      currentSlide: this.props.currentSlide,
-      slideCount: this.props.slideCount,
+      currentSlide: currentSlide,
+      slideCount: slideCount,
     }
     let prevArrow
 
-    if (this.props.prevArrow) {
-      prevArrow = React.cloneElement(this.props.prevArrow, {
+    if (prevArrow) {
+      prevArrow = cloneElement(prevArrow, {
         ...prevArrowProps,
-        ...customProps,
+        ...{
+          props: customProps,
+        },
       })
     } else {
       prevArrow = (
@@ -52,42 +57,52 @@ export class PrevArrow extends React.PureComponent {
     }
 
     return prevArrow
-  }
+  },
 }
 
-export class NextArrow extends React.PureComponent {
-  clickHandler (options, e) {
+export const NextArrow = {
+  functional: true,
+  clickHandler (options, handle, e) {
     if (e) {
       e.preventDefault()
     }
-    this.props.clickHandler(options, e)
-  }
-  render () {
-    const nextClasses = { 'slick-arrow': true, 'slick-next': true }
-    let nextHandler = this.clickHandler.bind(this, { message: 'next' })
+    handle(options, e)
+  },
+  render (createElement, context) {
+    const { props } = context
+    const { clickHandler, currentSlide, slideCount } = props
 
-    if (!canGoNext(this.props)) {
+    const nextClasses = { 'slick-arrow': true, 'slick-next': true }
+    let nextHandler = this.clickHandler.bind(this, { message: 'next' }, clickHandler)
+
+    if (!canGoNext(props)) {
       nextClasses['slick-disabled'] = true
       nextHandler = null
     }
 
     const nextArrowProps = {
       key: '1',
-      'data-role': 'none',
-      className: classnames(nextClasses),
+      domProps: {
+        'data-role': 'none',
+      },
+      class: classnames(nextClasses),
       style: { display: 'block' },
-      onClick: nextHandler,
+      on: {
+        click: nextHandler,
+      },
     }
     const customProps = {
-      currentSlide: this.props.currentSlide,
-      slideCount: this.props.slideCount,
+      currentSlide: currentSlide,
+      slideCount: slideCount,
     }
     let nextArrow
 
-    if (this.props.nextArrow) {
-      nextArrow = React.cloneElement(this.props.nextArrow, {
+    if (nextArrow) {
+      nextArrow = cloneElement(nextArrow, {
         ...nextArrowProps,
-        ...customProps,
+        ...{
+          props: customProps,
+        },
       })
     } else {
       nextArrow = (
@@ -99,5 +114,5 @@ export class NextArrow extends React.PureComponent {
     }
 
     return nextArrow
-  }
+  },
 }

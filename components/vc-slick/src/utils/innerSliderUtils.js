@@ -1,6 +1,3 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-
 export const getOnDemandLazySlides = spec => {
   const onDemandSlides = []
   const startIndex = lazyStartIndex(spec)
@@ -98,9 +95,9 @@ export const extractObject = (spec, keys) => {
 // get initialized state
 export const initializedState = spec => {
   // spec also contains listRef, trackRef
-  const slideCount = React.Children.count(spec.children)
-  const listWidth = Math.ceil(getWidth(ReactDOM.findDOMNode(spec.listRef)))
-  const trackWidth = Math.ceil(getWidth(ReactDOM.findDOMNode(spec.trackRef)))
+  const slideCount = spec.children.length
+  const listWidth = Math.ceil(getWidth(spec.listRef))
+  const trackWidth = Math.ceil(getWidth(spec.trackRef))
   let slideWidth
   if (!spec.vertical) {
     let centerPaddingAdj = spec.centerMode && parseInt(spec.centerPadding) * 2
@@ -115,9 +112,9 @@ export const initializedState = spec => {
     slideWidth = listWidth
   }
   const slideHeight =
-    ReactDOM.findDOMNode(spec.listRef) &&
+    spec.listRef &&
     getHeight(
-      ReactDOM.findDOMNode(spec.listRef).querySelector('[data-index="0"]')
+      spec.listRef.querySelector('[data-index="0"]')
     )
   const listHeight = slideHeight * spec.slidesToShow
   let currentSlide =
@@ -511,7 +508,7 @@ export const getSlideCount = spec => {
     : 0
   if (spec.swipeToSlide) {
     let swipedSlide
-    const slickList = ReactDOM.findDOMNode(spec.listRef)
+    const slickList = spec.listRef
     const slides = slickList.querySelectorAll('.slick-slide')
     Array.from(slides).every(slide => {
       if (!spec.vertical) {
@@ -717,7 +714,7 @@ export const getTrackLeft = spec => {
 
   if (variableWidth === true) {
     let targetSlideIndex
-    const trackElem = ReactDOM.findDOMNode(trackRef)
+    const trackElem = trackRef
     targetSlideIndex = slideIndex + getPreClones(spec)
     targetSlide = trackElem && trackElem.childNodes[targetSlideIndex]
     targetLeft = targetSlide ? targetSlide.offsetLeft * -1 : 0
