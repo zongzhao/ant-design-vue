@@ -1,11 +1,14 @@
 import '../assets/index.less'
 import Slider from '../src/slider'
+// import { baseUrl } from './config'
+const baseUrl = 'https://s3.amazonaws.com/static.neostack.com/img/react-slick'
 
 export default {
   render () {
     const settings = {
       props: {
         dots: true,
+        fade: true,
         infinite: true,
         speed: 500,
         slidesToShow: 1,
@@ -13,26 +16,20 @@ export default {
       },
     }
     return (
-      <div style={{ width: '80%', margin: '0 auto' }}>
-        <h2> Single Item</h2>
+      <div>
+        <h2>Fade</h2>
         <Slider {...settings}>
           <div>
-            <h3>1</h3>
+            <img src={baseUrl + '/abstract01.jpg'} />
           </div>
           <div>
-            <h3>2</h3>
+            <img src={baseUrl + '/abstract02.jpg'} />
           </div>
           <div>
-            <h3>3</h3>
+            <img src={baseUrl + '/abstract03.jpg'} />
           </div>
           <div>
-            <h3>4</h3>
-          </div>
-          <div>
-            <h3>5</h3>
-          </div>
-          <div>
-            <h3>6</h3>
+            <img src={baseUrl + '/abstract04.jpg'} />
           </div>
         </Slider>
       </div>

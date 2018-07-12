@@ -5,16 +5,17 @@ export default {
   render () {
     const settings = {
       props: {
-        dots: true,
+        centerMode: true,
         infinite: true,
+        centerPadding: '60px',
+        slidesToShow: 3,
         speed: 500,
-        slidesToShow: 1,
-        slidesToScroll: 1,
       },
+      class: 'center',
     }
     return (
-      <div style={{ width: '80%', margin: '0 auto' }}>
-        <h2> Single Item</h2>
+      <div>
+        <h2>Center Mode</h2>
         <Slider {...settings}>
           <div>
             <h3>1</h3>

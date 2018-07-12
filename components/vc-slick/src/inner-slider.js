@@ -1,7 +1,8 @@
-import debounce from 'lodash.debounce'
+import debounce from 'lodash/debounce'
 import classnames from 'classnames'
 import Vue from 'vue'
 import antRefDirective from '../../_util/antRefDirective'
+import { getStyle } from '../../_util/props-util'
 import BaseMixin from '../../_util/BaseMixin'
 import defaultProps from './default-props'
 import initialState from './initial-state'
@@ -22,12 +23,14 @@ import {
   getTrackLeft,
   getTrackCSS,
 } from './utils/innerSliderUtils'
-import { Track } from './track'
-import { Dots } from './dots'
+import Track from './track'
+import Dots from './dots'
 import { PrevArrow, NextArrow } from './arrows'
 import ResizeObserver from 'resize-observer-polyfill'
 
 Vue.use(antRefDirective)
+
+function noop () {}
 
 export default {
   props: {
@@ -43,15 +46,15 @@ export default {
     return {
       ...initialState,
       currentSlide: this.initialSlide,
-      slideCount: this.$slot.default.length,
+      slideCount: this.$slots.default.length,
     }
   },
   methods: {
     listRefHandler (ref) {
-      this.list = ref
+      this.list = ref && ref.elm
     },
     trackRefHandler (ref) {
-      this.track = ref
+      this.track = ref && ref.elm
     },
     adaptHeight () {
       if (this.adaptiveHeight && this.list) {
@@ -71,7 +74,7 @@ export default {
       const spec = {
         listRef: this.list,
         trackRef: this.track,
-        children: this.$slot.default,
+        children: this.$slots.default,
         ...this.$props,
         ...this.$data,
       }
@@ -94,16 +97,16 @@ export default {
       const trackStyle = getTrackCSS(spec)
       if (
         setTrackStyle ||
-        this.$slot.default.length !==
-        spec.$slot.default.length
+        this.$slots.default.length !==
+        spec.children.length
       ) {
         updatedState['trackStyle'] = trackStyle
       }
       this.setState(updatedState, callback)
     },
     ssrInit () {
-      const children = this.$slot.default
-      if (this.props.variableWidth) {
+      const children = this.$slots.default
+      if (this.variableWidth) {
         let trackWidth = 0
         let trackLeft = 0
         const childrenWidths = []
@@ -118,8 +121,9 @@ export default {
           slideCount: children.length,
         })
         children.forEach(child => {
-          childrenWidths.push(child.props.style.width)
-          trackWidth += child.props.style.width
+          const childWidth = getStyle(child).width.split('px')[0]
+          childrenWidths.push(childWidth)
+          trackWidth += childWidth
         })
         for (let i = 0; i < preClones; i++) {
           trackLeft += childrenWidths[childrenWidths.length - 1 - i]
@@ -128,7 +132,7 @@ export default {
         for (let i = 0; i < postClones; i++) {
           trackWidth += childrenWidths[i]
         }
-        for (let i = 0; i < this.state.currentSlide; i++) {
+        for (let i = 0; i < this.currentSlide; i++) {
           trackLeft += childrenWidths[i]
         }
         const trackStyle = {
@@ -185,7 +189,7 @@ export default {
           }
         }
         if (!image.onload) {
-          if (this.props.lazyLoad) {
+          if (this.$props.lazyLoad) {
             image.onload = () => {
               this.adaptHeight()
               this.callbackTimers.push(
@@ -347,7 +351,7 @@ export default {
       this.setState(state)
       if (triggerSlideHandler === undefined) return
       this.slideHandler(triggerSlideHandler)
-      if (this.props.verticalSwiping) {
+      if (this.$props.verticalSwiping) {
         this.enableBodyScroll()
       }
     },
@@ -396,7 +400,7 @@ export default {
 
       this.slideHandler(nextIndex)
     },
-    autoPlay (playType) {
+    handleAutoPlay (playType) {
       if (this.autoplayTimer) {
         clearInterval(this.autoplayTimer)
       }
@@ -446,7 +450,7 @@ export default {
     onDotsLeave () {
       this.autoplay &&
       this.autoplaying === 'hovered' &&
-      this.autoPlay('leave')
+      this.handleAutoPlay('leave')
     },
     onTrackOver () {
       this.autoplay && this.pause('hovered')
@@ -454,7 +458,7 @@ export default {
     onTrackLeave () {
       this.autoplay &&
       this.autoplaying === 'hovered' &&
-      this.autoPlay('leave')
+      this.handleAutoPlay('leave')
     },
     onSlideFocus () {
       this.autoplay && this.pause('focused')
@@ -462,7 +466,7 @@ export default {
     onSlideBlur () {
       this.autoplay &&
       this.autoplaying === 'focused' &&
-      this.autoPlay('blur')
+      this.handleAutoPlay('blur')
     },
   },
   beforeMount () {
@@ -482,41 +486,48 @@ export default {
     }
   },
   mounted () {
-    const spec = { listRef: this.list, trackRef: this.track, ...this.$props }
-    this.updateState(spec, true, () => {
-      this.adaptHeight()
-      this.autoplay && this.handleAutoPlay('update')
-    })
-    if (this.lazyLoad === 'progressive') {
-      this.lazyLoadTimer = setInterval(this.progressiveLazyLoad, 1000)
-    }
-    this.ro = new ResizeObserver(() => {
-      if (this.animating) {
-        this.onWindowResized(false) // don't set trackStyle hence don't break animation
-        this.callbackTimers.push(
-          setTimeout(() => this.onWindowResized(), this.speed)
-        )
+    this.$nextTick(() => {
+      const spec = {
+        listRef: this.list,
+        trackRef: this.track,
+        children: this.$slots.default,
+        ...this.$props,
+      }
+      this.updateState(spec, true, () => {
+        this.adaptHeight()
+        this.autoplay && this.handleAutoPlay('update')
+      })
+      if (this.lazyLoad === 'progressive') {
+        this.lazyLoadTimer = setInterval(this.progressiveLazyLoad, 1000)
+      }
+      this.ro = new ResizeObserver(() => {
+        if (this.animating) {
+          this.onWindowResized(false) // don't set trackStyle hence don't break animation
+          this.callbackTimers.push(
+            setTimeout(() => this.onWindowResized(), this.speed)
+          )
+        } else {
+          this.onWindowResized()
+        }
+      })
+      this.ro.observe(this.list)
+      Array.prototype.forEach.call(
+        document.querySelectorAll('.slick-slide'),
+        slide => {
+          slide.onfocus = this.$props.pauseOnFocus ? this.onSlideFocus : null
+          slide.onblur = this.$props.pauseOnFocus ? this.onSlideBlur : null
+        }
+      )
+      // To support server-side rendering
+      if (!window) {
+        return
+      }
+      if (window.addEventListener) {
+        window.addEventListener('resize', this.onWindowResized)
       } else {
-        this.onWindowResized()
+        window.attachEvent('onresize', this.onWindowResized)
       }
     })
-    this.ro.observe(this.list)
-    Array.prototype.forEach.call(
-      document.querySelectorAll('.slick-slide'),
-      slide => {
-        slide.onfocus = this.props.pauseOnFocus ? this.onSlideFocus : null
-        slide.onblur = this.props.pauseOnFocus ? this.onSlideBlur : null
-      }
-    )
-    // To support server-side rendering
-    if (!window) {
-      return
-    }
-    if (window.addEventListener) {
-      window.addEventListener('resize', this.onWindowResized)
-    } else {
-      window.attachEvent('onresize', this.onWindowResized)
-    }
   },
   beforeDestroy () {
     if (this.animationEndCallback) {
@@ -563,7 +574,7 @@ export default {
       const spec = {
         listRef: this.list,
         trackRef: this.track,
-        children: this.$slot.default,
+        children: this.$slots.default,
         ...props,
         ...this.$data,
       }
@@ -585,7 +596,7 @@ export default {
         }
       }
       this.updateState(spec, setTrackStyle, () => {
-        const children = this.$slot.default
+        const children = this.$slots.default
         if (this.currentSlide >= children.length) {
           this.changeSlide({
             message: 'index',
@@ -595,7 +606,7 @@ export default {
           })
         }
         if (props.autoplay) {
-          this.autoPlay('update')
+          this.handleAutoPlay('update')
         } else {
           this.pause('paused')
         }
@@ -642,9 +653,9 @@ export default {
         value: this.trackRefHandler,
       }],
       on: {
-        mouseenter: pauseOnHover ? this.onTrackOver : null,
-        mouseleave: pauseOnHover ? this.onTrackLeave : null,
-        mouseover: pauseOnHover ? this.onTrackOver : null,
+        mouseenter: pauseOnHover ? this.onTrackOver : noop,
+        mouseleave: pauseOnHover ? this.onTrackLeave : noop,
+        mouseover: pauseOnHover ? this.onTrackOver : noop,
       },
     }
 
@@ -665,16 +676,16 @@ export default {
         'infinite',
         'appendDots',
       ])
-      const { pauseOnDotsHover } = this.props
+      const { pauseOnDotsHover } = this.$props
       dotProps = {
         props: {
           ...dotProps,
           clickHandler: this.changeSlide,
         },
         on: {
-          mouseenter: pauseOnDotsHover ? this.onDotsLeave : null,
-          mouseover: pauseOnDotsHover ? this.onDotsOver : null,
-          mouseleave: pauseOnDotsHover ? this.onDotsLeave : null,
+          mouseenter: pauseOnDotsHover ? this.onDotsLeave : noop,
+          mouseover: pauseOnDotsHover ? this.onDotsOver : noop,
+          mouseleave: pauseOnDotsHover ? this.onDotsLeave : noop,
         },
       }
       dots = <Dots {...dotProps} />
@@ -691,10 +702,9 @@ export default {
       'nextArrow',
     ])
     arrowProps.clickHandler = this.changeSlide
-
     if (this.arrows) {
-      prevArrow = <PrevArrow {...arrowProps} />
-      nextArrow = <NextArrow {...arrowProps} />
+      prevArrow = <PrevArrow {...{ props: arrowProps }} />
+      nextArrow = <NextArrow {...{ props: arrowProps }} />
     }
 
     let verticalHeightStyle = null
@@ -732,15 +742,15 @@ export default {
       style: listStyle,
       on: {
         click: this.clickHandler,
-        mousedown: touchMove ? this.swipeStart : null,
-        mousemove: this.dragging && touchMove ? this.swipeMove : null,
-        mouseup: touchMove ? this.swipeEnd : null,
-        mouseleave: this.dragging && touchMove ? this.swipeEnd : null,
-        touchstart: touchMove ? this.swipeStart : null,
-        touchmove: this.dragging && touchMove ? this.swipeMove : null,
-        touchend: touchMove ? this.swipeEnd : null,
-        touchcancel: this.dragging && touchMove ? this.swipeEnd : null,
-        keydown: this.accessibility ? this.keyHandler : null,
+        mousedown: touchMove ? this.swipeStart : noop,
+        mousemove: this.dragging && touchMove ? this.swipeMove : noop,
+        mouseup: touchMove ? this.swipeEnd : noop,
+        mouseleave: this.dragging && touchMove ? this.swipeEnd : noop,
+        touchstart: touchMove ? this.swipeStart : noop,
+        touchmove: this.dragging && touchMove ? this.swipeMove : noop,
+        touchend: touchMove ? this.swipeEnd : noop,
+        touchcancel: this.dragging && touchMove ? this.swipeEnd : noop,
+        keydown: this.accessibility ? this.keyHandler : noop,
       },
     }
 
@@ -760,7 +770,7 @@ export default {
         {!this.unslick ? prevArrow : ''}
         <div {...listProps}>
           <Track {...trackProps}>
-            {this.$slot.default}
+            {this.$slots.default}
           </Track>
         </div>
         {!this.unslick ? nextArrow : ''}

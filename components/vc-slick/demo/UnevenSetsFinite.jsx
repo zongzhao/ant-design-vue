@@ -6,15 +6,15 @@ export default {
     const settings = {
       props: {
         dots: true,
-        infinite: true,
+        infinite: false,
         speed: 500,
-        slidesToShow: 1,
-        slidesToScroll: 1,
+        slidesToScroll: 4,
+        slidesToShow: 4,
       },
     }
     return (
-      <div style={{ width: '80%', margin: '0 auto' }}>
-        <h2> Single Item</h2>
+      <div>
+        <h2>Uneven sets (finite)</h2>
         <Slider {...settings}>
           <div>
             <h3>1</h3>

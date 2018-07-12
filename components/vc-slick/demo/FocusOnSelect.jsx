@@ -5,16 +5,17 @@ export default {
   render () {
     const settings = {
       props: {
-        dots: true,
+        focusOnSelect: true,
         infinite: true,
-        speed: 500,
-        slidesToShow: 1,
+        slidesToShow: 3,
         slidesToScroll: 1,
+        speed: 500,
       },
     }
     return (
-      <div style={{ width: '80%', margin: '0 auto' }}>
-        <h2> Single Item</h2>
+      <div>
+        <h2>FocusOnSelect</h2>
+        <div>Click on any slide to select and make it current slide</div>
         <Slider {...settings}>
           <div>
             <h3>1</h3>

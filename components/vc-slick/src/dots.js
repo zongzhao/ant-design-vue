@@ -17,20 +17,12 @@ const getDotCount = function (spec) {
 
 export default {
   functional: true,
-  clickHandler (options, handle, e) {
-    // In Autoplay the focus stays on clicked button even after transition
-    // to next slide. That only goes away by click somewhere outside
-    if (e) {
-      e.preventDefault()
-    }
-    handle(options)
-  },
   render (createElement, context) {
     const { props, listeners } = context
     const {
       slideCount, slidesToScroll, slidesToShow,
       infinite, currentSlide, appendDots,
-      customPaging, clickHandler,
+      customPaging, clickHandler, dotsClass,
     } = props
     const dotCount = getDotCount({
       slideCount: slideCount,
@@ -65,19 +57,25 @@ export default {
         slidesToScroll: slidesToScroll,
         currentSlide: currentSlide,
       }
-
-      const onClick = this.clickHandler.bind(this, dotOptions, clickHandler)
+      function onClick (e) {
+        // In Autoplay the focus stays on clicked button even after transition
+        // to next slide. That only goes away by click somewhere outside
+        if (e) {
+          e.preventDefault()
+        }
+        clickHandler(dotOptions)
+      }
       return (
         <li key={i} class={className}>
-          {cloneElement(customPaging(i), { on: {
+          {cloneElement(customPaging(createElement, { i }), { on: {
             click: onClick,
           }})}
         </li>
       )
     })
 
-    return cloneElement(appendDots(dots), {
-      class: this.props.dotsClass,
+    return cloneElement(appendDots(createElement, { dots }), {
+      class: dotsClass,
       on: {
         ...mouseEvents,
       },

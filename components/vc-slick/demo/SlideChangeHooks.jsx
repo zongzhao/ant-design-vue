@@ -2,19 +2,33 @@ import '../assets/index.less'
 import Slider from '../src/slider'
 
 export default {
+  data () {
+    return {
+      activeSlide: 0,
+      activeSlide2: 0,
+    }
+  },
   render () {
     const settings = {
       props: {
         dots: true,
         infinite: true,
-        speed: 500,
+        speed: 1000,
         slidesToShow: 1,
         slidesToScroll: 1,
+        beforeChange: (current, next) => { this.activeSlide = next },
+        afterChange: current => { this.activeSlide2 = current },
       },
     }
     return (
-      <div style={{ width: '80%', margin: '0 auto' }}>
-        <h2> Single Item</h2>
+      <div>
+        <h2>beforeChange and afterChange hooks</h2>
+        <p>
+          BeforeChange => activeSlide: <strong>{this.activeSlide}</strong>
+        </p>
+        <p>
+          AfterChange => activeSlide: <strong>{this.activeSlide2}</strong>
+        </p>
         <Slider {...settings}>
           <div>
             <h3>1</h3>

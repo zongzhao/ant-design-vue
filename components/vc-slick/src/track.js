@@ -1,5 +1,6 @@
 import classnames from 'classnames'
 import { cloneElement } from '../../_util/vnode'
+import { getStyle, getClass } from '../../_util/props-util'
 import {
   lazyStartIndex,
   lazyEndIndex,
@@ -45,15 +46,15 @@ const getSlideStyle = function (spec) {
   const style = {}
 
   if (spec.variableWidth === undefined || spec.variableWidth === false) {
-    style.width = spec.slideWidth
+    style.width = spec.slideWidth + (typeof spec.slideWidth === 'number' ? 'px' : '')
   }
 
   if (spec.fade) {
     style.position = 'relative'
     if (spec.vertical) {
-      style.top = -spec.index * parseInt(spec.slideHeight)
+      style.top = -spec.index * parseInt(spec.slideHeight) + 'px'
     } else {
-      style.left = -spec.index * parseInt(spec.slideWidth)
+      style.left = -spec.index * parseInt(spec.slideWidth) + 'px'
     }
     style.opacity = spec.currentSlide === spec.index ? 1 : 0
     style.transition =
@@ -81,9 +82,9 @@ const getSlideStyle = function (spec) {
   return style
 }
 
-const getKey = (child, fallbackKey) => child.key || fallbackKey
+const getKey = (child, fallbackKey) => child.key || (child.key === 0 && '0') || fallbackKey
 
-const renderSlides = function (spec, children) {
+const renderSlides = function (spec, children, createElement) {
   let key
   const slides = []
   const preCloneSlides = []
@@ -108,24 +109,25 @@ const renderSlides = function (spec, children) {
     ) {
       child = elem
     } else {
-      child = <div />
+      child = createElement('div')
     }
     const childStyle = getSlideStyle({ ...spec, index })
-    const slideClass = child.props.className || ''
+    const slideClass = getClass(child.context) || ''
     let slideClasses = getSlideClasses({ ...spec, index })
     // push a cloned element of the desired slide
     slides.push(
       cloneElement(child, {
         key: 'original' + getKey(child, index),
-        domProps: {
+        attrs: {
           tabIndex: '-1',
           'data-index': index,
           'aria-hidden': !slideClasses['slick-active'],
         },
         class: classnames(slideClasses, slideClass),
-        style: { outline: 'none', ...(child.props.style || {}), ...childStyle },
+        style: { outline: 'none', ...(getStyle(child.context) || {}), ...childStyle },
         on: {
           click: e => {
+            // todo
             child.props && child.props.onClick && child.props.onClick(e)
             if (spec.focusOnSelect) {
               spec.focusOnSelect(childOnClickOptions)
@@ -151,14 +153,15 @@ const renderSlides = function (spec, children) {
           cloneElement(child, {
             key: 'precloned' + getKey(child, key),
             class: classnames(slideClasses, slideClass),
-            domProps: {
+            attrs: {
               tabIndex: '-1',
               'data-index': key,
               'aria-hidden': !slideClasses['slick-active'],
             },
-            style: { ...(child.props.style || {}), ...childStyle },
+            style: { ...(getStyle(child.context) || {}), ...childStyle },
             on: {
               click: e => {
+                // todo
                 child.props && child.props.onClick && child.props.onClick(e)
                 if (spec.focusOnSelect) {
                   spec.focusOnSelect(childOnClickOptions)
@@ -178,15 +181,16 @@ const renderSlides = function (spec, children) {
         postCloneSlides.push(
           cloneElement(child, {
             key: 'postcloned' + getKey(child, key),
-            domProps: {
+            attrs: {
               tabIndex: '-1',
               'data-index': key,
               'aria-hidden': !slideClasses['slick-active'],
             },
             class: classnames(slideClasses, slideClass),
-            style: { ...(child.props.style || {}), ...childStyle },
+            style: { ...(getStyle(child.context) || {}), ...childStyle },
             on: {
               click: e => {
+                // todo
                 child.props && child.props.onClick && child.props.onClick(e)
                 if (spec.focusOnSelect) {
                   spec.focusOnSelect(childOnClickOptions)
@@ -209,8 +213,8 @@ const renderSlides = function (spec, children) {
 export default {
   functional: true,
   render (createElement, context) {
-    const { props, listeners, children } = context
-    const slides = renderSlides(props, children)
+    const { props, listeners, children, data } = context
+    const slides = renderSlides(props, children, createElement)
     const { mouseenter, mouseover, mouseleave } = listeners
     const mouseEvents = { mouseenter, mouseover, mouseleave }
     const trackProps = {
@@ -219,6 +223,7 @@ export default {
       on: {
         ...mouseEvents,
       },
+      directives: data.directives,
     }
     return (
       <div

@@ -2,6 +2,8 @@ import classnames from 'classnames'
 import { cloneElement } from '../../_util/vnode'
 import { canGoNext } from './utils/innerSliderUtils'
 
+function noop () {}
+
 export const PrevArrow = {
   functional: true,
   clickHandler (options, handle, e) {
@@ -14,13 +16,18 @@ export const PrevArrow = {
     const { props } = context
     const { clickHandler, infinite, currentSlide, slideCount, slidesToShow } = props
     const prevClasses = { 'slick-arrow': true, 'slick-prev': true }
-    let prevHandler = this.clickHandler.bind(this, { message: 'previous' }, clickHandler)
+    let prevHandler = function (e) {
+      if (e) {
+        e.preventDefault()
+      }
+      clickHandler({ message: 'previous' })
+    }
 
     if (
       !infinite && (currentSlide === 0 || slideCount <= slidesToShow)
     ) {
       prevClasses['slick-disabled'] = true
-      prevHandler = null
+      prevHandler = noop
     }
 
     const prevArrowProps = {
@@ -73,11 +80,15 @@ export const NextArrow = {
     const { clickHandler, currentSlide, slideCount } = props
 
     const nextClasses = { 'slick-arrow': true, 'slick-next': true }
-    let nextHandler = this.clickHandler.bind(this, { message: 'next' }, clickHandler)
-
+    let nextHandler = function (e) {
+      if (e) {
+        e.preventDefault()
+      }
+      clickHandler({ message: 'next' })
+    }
     if (!canGoNext(props)) {
       nextClasses['slick-disabled'] = true
-      nextHandler = null
+      nextHandler = noop
     }
 
     const nextArrowProps = {

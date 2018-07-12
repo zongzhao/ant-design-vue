@@ -5,7 +5,9 @@ const defaultProps = {
   // 自定义高度
   adaptiveHeight: PropTypes.bool.def(false),
   afterChange: PropTypes.any.def(null),
-  appendDots: PropTypes.func.def(dots => <ul style={{ display: 'block' }}>{dots}</ul>),
+  appendDots: PropTypes.func.def((h, { dots }) => {
+    return <ul style={{ display: 'block' }}>{dots}</ul>
+  }),
   arrows: PropTypes.bool.def(true),
   autoplay: PropTypes.bool.def(false),
   autoplaySpeed: PropTypes.number.def(3000),
@@ -14,10 +16,13 @@ const defaultProps = {
   centerPadding: PropTypes.string.def('50px'),
   // className: '',
   cssEase: PropTypes.string.def('ease'),
-  customPaging: PropTypes.func.def(i => <button>{i + 1}</button>),
+  customPaging: PropTypes.func.def((h, { i }) => {
+    return <button>{i + 1}</button>
+  }),
   dots: PropTypes.bool.def(false),
   dotsClass: PropTypes.string.def('slick-dots'),
   draggable: PropTypes.bool.def(true),
+  unslick: PropTypes.bool.def(false),
   easing: PropTypes.string.def('linear'),
   edgeFriction: PropTypes.number.def(0.35),
   fade: PropTypes.bool.def(false),

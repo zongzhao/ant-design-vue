@@ -3,7 +3,8 @@ import Vue from 'vue'
 import antRefDirective from '../../_util/antRefDirective'
 import BaseMixin from '../../_util/BaseMixin'
 import { cloneElement } from '../../_util/vnode'
-import { InnerSlider } from './inner-slider'
+import { getStyle } from '../../_util/props-util'
+import InnerSlider from './inner-slider'
 import defaultProps from './default-props'
 import { canUseDOM } from './utils/innerSliderUtils'
 const enquire = canUseDOM() && require('enquire.js')
@@ -22,7 +23,7 @@ export default {
   },
   methods: {
     innerSliderRefHandler (ref) {
-      this.innerSlider = ref
+      this.innerSlider = ref && ref.componentInstance
     },
     media (query, handler) {
       // javascript handler for  css media query
@@ -42,7 +43,7 @@ export default {
       this.innerSlider.pause('paused')
     },
     slickPlay () {
-      this.innerSlider.autoPlay('play')
+      this.innerSlider.handleAutoPlay('play')
     },
   },
   // handles responsive breakpoints
@@ -146,7 +147,7 @@ export default {
     }
 
     // makes sure that children is an array, even when there is only 1 child
-    let children = this.$slot.default
+    let children = this.$slots.default
 
     // Children may contain false or null, so we should filter them
     // children may also contain string filled with spaces (in certain cases where we use jsx strings)
@@ -182,14 +183,16 @@ export default {
       ) {
         const row = []
         for (let k = j; k < j + settings.slidesPerRow; k += 1) {
-          if (settings.variableWidth && children[k].props.style) {
-            currentWidth = children[k].props.style.width
+          if (settings.variableWidth && getStyle(children[k])) {
+            currentWidth = getStyle(children[k]).width
           }
           if (k >= children.length) break
           row.push(
             cloneElement(children[k], {
               key: 100 * i + 10 * j + k,
-              tabIndex: -1,
+              attrs: {
+                tabIndex: -1,
+              },
               style: {
                 width: `${100 / settings.slidesPerRow}%`,
                 display: 'inline-block',
@@ -219,6 +222,9 @@ export default {
     const sliderProps = {
       props: {
         ...settings,
+      },
+      on: {
+        ...this.$listeners,
       },
       directives: [{
         name: 'ant-ref',

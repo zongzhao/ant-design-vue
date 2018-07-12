@@ -8,13 +8,13 @@ export default {
         dots: true,
         infinite: true,
         speed: 500,
-        slidesToShow: 1,
-        slidesToScroll: 1,
+        slidesToShow: 3,
+        slidesToScroll: 3,
       },
     }
     return (
-      <div style={{ width: '80%', margin: '0 auto' }}>
-        <h2> Single Item</h2>
+      <div>
+        <h2> Multiple items </h2>
         <Slider {...settings}>
           <div>
             <h3>1</h3>
@@ -33,6 +33,15 @@ export default {
           </div>
           <div>
             <h3>6</h3>
+          </div>
+          <div>
+            <h3>7</h3>
+          </div>
+          <div>
+            <h3>8</h3>
+          </div>
+          <div>
+            <h3>9</h3>
           </div>
         </Slider>
       </div>
