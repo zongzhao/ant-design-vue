@@ -1,6 +1,5 @@
 <template>
   <a-carousel vertical>
-    <div><h3>1</h3></div>
   </a-carousel>
 </template>
 <script>
