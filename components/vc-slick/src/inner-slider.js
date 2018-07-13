@@ -38,6 +38,7 @@ export default {
   },
   mixins: [BaseMixin],
   data () {
+    this.preProps = { ...this.$props }
     this.list = null
     this.track = null
     this.callbackTimers = []
@@ -46,7 +47,7 @@ export default {
     return {
       ...initialState,
       currentSlide: this.initialSlide,
-      slideCount: this.$slots.default.length,
+      slideCount: this.children.length,
     }
   },
   methods: {
@@ -74,7 +75,7 @@ export default {
       const spec = {
         listRef: this.list,
         trackRef: this.track,
-        children: this.$slots.default,
+        children: this.children,
         ...this.$props,
         ...this.$data,
       }
@@ -97,7 +98,7 @@ export default {
       const trackStyle = getTrackCSS(spec)
       if (
         setTrackStyle ||
-        this.$slots.default.length !==
+        this.children.length !==
         spec.children.length
       ) {
         updatedState['trackStyle'] = trackStyle
@@ -105,7 +106,7 @@ export default {
       this.setState(updatedState, callback)
     },
     ssrInit () {
-      const children = this.$slots.default
+      const children = this.children
       if (this.variableWidth) {
         let trackWidth = 0
         let trackLeft = 0
@@ -490,7 +491,7 @@ export default {
       const spec = {
         listRef: this.list,
         trackRef: this.track,
-        children: this.$slots.default,
+        children: this.children,
         ...this.$props,
       }
       this.updateState(spec, true, () => {
@@ -570,48 +571,90 @@ export default {
     this.adaptHeight()
   },
   watch: {
-    '$props': function (props) {
+    __propsSymbol__ () {
+      const nextProps = this.$props
       const spec = {
         listRef: this.list,
         trackRef: this.track,
-        children: this.$slots.default,
-        ...props,
+        ...nextProps,
         ...this.$data,
       }
       let setTrackStyle = false
-      for (const key of Object.keys(this.$props)) {
-        if (!props.hasOwnProperty(key)) {
+      for (const key of Object.keys(this.preProps)) {
+        if (!nextProps.hasOwnProperty(key)) {
           setTrackStyle = true
           break
         }
         if (
-          typeof props[key] === 'object' ||
-          typeof props[key] === 'function'
+          typeof nextProps[key] === 'object' ||
+          typeof nextProps[key] === 'function' ||
+          typeof nextProps[key] === 'symbol'
         ) {
           continue
         }
-        if (props[key] !== this.$props[key]) {
+        if (nextProps[key] !== this.preProps[key]) {
           setTrackStyle = true
           break
         }
       }
       this.updateState(spec, setTrackStyle, () => {
-        const children = this.$slots.default
-        if (this.currentSlide >= children.length) {
+        if (this.currentSlide >= nextProps.children.length) {
           this.changeSlide({
             message: 'index',
-            index:
-            children.length - props.slidesToShow,
+            index: nextProps.children.length - nextProps.slidesToShow,
             currentSlide: this.currentSlide,
           })
         }
-        if (props.autoplay) {
-          this.handleAutoPlay('update')
+        if (nextProps.autoplay) {
+          this.autoPlay('update')
         } else {
           this.pause('paused')
         }
       })
+      this.preProps = { ...nextProps }
     },
+    // '$props': function (props) {
+    //   const spec = {
+    //     listRef: this.list,
+    //     trackRef: this.track,
+    //     children: this.$slots.default,
+    //     ...props,
+    //     ...this.$data,
+    //   }
+    //   let setTrackStyle = false
+    //   for (const key of Object.keys(this.$props)) {
+    //     if (!props.hasOwnProperty(key)) {
+    //       setTrackStyle = true
+    //       break
+    //     }
+    //     if (
+    //       typeof props[key] === 'object' ||
+    //       typeof props[key] === 'function'
+    //     ) {
+    //       continue
+    //     }
+    //     if (props[key] !== this.$props[key]) {
+    //       setTrackStyle = true
+    //       break
+    //     }
+    //   }
+    //   this.updateState(spec, setTrackStyle, () => {
+    //     const children = this.$slots.default
+    //     if (this.currentSlide >= children.length) {
+    //       this.changeSlide({
+    //         message: 'index',
+    //         index:
+    //         children.length - props.slidesToShow,
+    //         currentSlide: this.currentSlide,
+    //       })
+    //     }
+    //     if (props.autoplay) {
+    //       this.handleAutoPlay('update')
+    //     } else {
+    //       this.pause('paused')
+    //     }
+    //   })
+    // },
   },
   render () {
     const className = classnames('slick-slider', {
@@ -619,6 +662,7 @@ export default {
       'slick-initialized': true,
     })
     const spec = { ...this.$props, ...this.$data }
+    const currentSlide = spec.currentSlide
     let trackProps = extractObject(spec, [
       'fade',
       'cssEase',
@@ -706,12 +750,11 @@ export default {
       prevArrow = <PrevArrow {...{ props: arrowProps }} />
       nextArrow = <NextArrow {...{ props: arrowProps }} />
     }
-
     let verticalHeightStyle = null
 
     if (this.vertical) {
       verticalHeightStyle = {
-        height: this.listHeight,
+        height: typeof this.listHeight === 'number' ? `${this.listHeight}px` : this.listHeight,
       }
     }
 
@@ -762,7 +805,13 @@ export default {
     }
 
     if (this.unslick) {
-      listProps = { class: 'slick-list' }
+      listProps = {
+        class: 'slick-list',
+        directives: [{
+          name: 'ant-ref',
+          value: this.listRefHandler,
+        }],
+      }
       innerSliderProps = { class: className }
     }
     return (
@@ -770,7 +819,7 @@ export default {
         {!this.unslick ? prevArrow : ''}
         <div {...listProps}>
           <Track {...trackProps}>
-            {this.$slots.default}
+            {this.children}
           </Track>
         </div>
         {!this.unslick ? nextArrow : ''}

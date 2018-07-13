@@ -222,6 +222,8 @@ export default {
     const sliderProps = {
       props: {
         ...settings,
+        children: newChildren,
+        __propsSymbol__: Symbol(),
       },
       on: {
         ...this.$listeners,
@@ -232,9 +234,7 @@ export default {
       }],
     }
     return (
-      <InnerSlider {...sliderProps}>
-        {newChildren}
-      </InnerSlider>
+      <InnerSlider {...sliderProps} />
     )
   },
 }

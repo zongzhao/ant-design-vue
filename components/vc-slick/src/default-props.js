@@ -60,6 +60,8 @@ const defaultProps = {
   variableWidth: PropTypes.bool.def(false),
   vertical: PropTypes.bool.def(false),
   waitForAnimate: PropTypes.bool.def(true),
+  children: PropTypes.array,
+  __propsSymbol__: PropTypes.any,
 }
 
 export default defaultProps
