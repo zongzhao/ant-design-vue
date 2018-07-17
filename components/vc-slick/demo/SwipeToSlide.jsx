@@ -5,18 +5,23 @@ export default {
   render () {
     const settings = {
       props: {
-        dots: true,
         infinite: true,
-        speed: 500,
-        slidesToShow: 1,
-        slidesToScroll: 1,
+        centerPadding: '60px',
+        slidesToShow: 5,
+        swipeToSlide: true,
+        afterChange: function (index) {
+          console.log(
+            `Slider Changed to: ${index + 1}, background: #222; color: #bada55`
+          )
+        },
       },
+      class: 'center',
     }
     return (
-      <div style={{ width: '80%', margin: '0 auto' }}>
-        <h2> Single Item</h2>
+      <div>
+        <h2>Swipe To Slide</h2>
         <Slider {...settings}>
-          <div onClick={(e) => alert(e)}>
+          <div>
             <h3>1</h3>
           </div>
           <div>
@@ -33,6 +38,15 @@ export default {
           </div>
           <div>
             <h3>6</h3>
+          </div>
+          <div>
+            <h3>7</h3>
+          </div>
+          <div>
+            <h3>8</h3>
+          </div>
+          <div>
+            <h3>9</h3>
           </div>
         </Slider>
       </div>

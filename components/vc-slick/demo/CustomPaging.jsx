@@ -3,22 +3,24 @@ import Slider from '../src/slider'
 const baseUrl = 'https://s3.amazonaws.com/static.neostack.com/img/react-slick'
 
 export default {
-  render () {
+  render (h) {
     const settings = {
       props: {
-        customPaging: function (i) {
-          return (
-            <a>
-              <img src={`${baseUrl}/abstract0${i + 1}.jpg`} />
-            </a>
-          )
-        },
         dots: true,
         dotsClass: 'slick-dots slick-thumb',
         infinite: true,
         speed: 500,
         slidesToShow: 1,
         slidesToScroll: 1,
+      },
+      scopedSlots: {
+        customPaging: (h, { i }) => {
+          return (
+            <a>
+              <img src={`${baseUrl}/abstract0${i + 1}.jpg`} />
+            </a>
+          )
+        },
       },
     }
     return (

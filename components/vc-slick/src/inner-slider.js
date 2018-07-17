@@ -267,7 +267,7 @@ export default {
       }
       this.setState(state, () => {
         asNavFor &&
-          asNavFor.innerSlider.state.currentSlide !== currentSlide &&
+          asNavFor.innerSlider.currentSlide !== currentSlide &&
           asNavFor.innerSlider.slideHandler(index)
         if (!nextState) return
         this.animationEndCallback = setTimeout(() => {
@@ -606,7 +606,7 @@ export default {
           })
         }
         if (nextProps.autoplay) {
-          this.autoPlay('update')
+          this.handleAutoPlay('update')
         } else {
           this.pause('paused')
         }
@@ -662,7 +662,6 @@ export default {
       'slick-initialized': true,
     })
     const spec = { ...this.$props, ...this.$data }
-    const currentSlide = spec.currentSlide
     let trackProps = extractObject(spec, [
       'fade',
       'cssEase',
@@ -720,6 +719,13 @@ export default {
         'infinite',
         'appendDots',
       ])
+      const { customPaging, appendDots } = this.$scopedSlots
+      if (customPaging) {
+        dotProps.customPaging = customPaging
+      }
+      if (appendDots) {
+        dotProps.appendDots = appendDots
+      }
       const { pauseOnDotsHover } = this.$props
       dotProps = {
         props: {
@@ -746,6 +752,13 @@ export default {
       'nextArrow',
     ])
     arrowProps.clickHandler = this.changeSlide
+    const { prevArrow: prevArrowCustom, nextArrow: nextArrowCustom } = this.$scopedSlots
+    if (prevArrowCustom) {
+      arrowProps.prevArrow = prevArrowCustom
+    }
+    if (nextArrowCustom) {
+      arrowProps.nextArrow = nextArrowCustom
+    }
     if (this.arrows) {
       prevArrow = <PrevArrow {...{ props: arrowProps }} />
       nextArrow = <NextArrow {...{ props: arrowProps }} />

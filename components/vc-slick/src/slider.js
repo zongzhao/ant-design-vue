@@ -232,6 +232,7 @@ export default {
         name: 'ant-ref',
         value: this.innerSliderRefHandler,
       }],
+      scopedSlots: this.$scopedSlots,
     }
     return (
       <InnerSlider {...sliderProps} />

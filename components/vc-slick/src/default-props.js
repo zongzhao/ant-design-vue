@@ -31,6 +31,8 @@ const defaultProps = {
   initialSlide: PropTypes.number.def(0),
   lazyLoad: PropTypes.any.def(null),
   nextArrow: PropTypes.any.def(null),
+  verticalSwiping: PropTypes.bool.def(false),
+  asNavFor: PropTypes.any.def(null),
   // onEdge: null,
   // onInit: null,
   // onLazyLoadError: null,

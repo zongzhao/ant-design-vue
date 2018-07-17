@@ -127,14 +127,13 @@ const renderSlides = function (spec, children, createElement) {
         style: { outline: 'none', ...(getStyle(child.context) || {}), ...childStyle },
         on: {
           click: e => {
-            // todo
-            child.props && child.props.onClick && child.props.onClick(e)
+            // child.props && child.props.onClick && child.props.onClick(e)
             if (spec.focusOnSelect) {
               spec.focusOnSelect(childOnClickOptions)
             }
           },
         },
-      })
+      }, true)
     )
 
     // if slide needs to be precloned or postcloned
@@ -161,8 +160,7 @@ const renderSlides = function (spec, children, createElement) {
             style: { ...(getStyle(child.context) || {}), ...childStyle },
             on: {
               click: e => {
-                // todo
-                child.props && child.props.onClick && child.props.onClick(e)
+                // child.props && child.props.onClick && child.props.onClick(e)
                 if (spec.focusOnSelect) {
                   spec.focusOnSelect(childOnClickOptions)
                 }
@@ -190,8 +188,7 @@ const renderSlides = function (spec, children, createElement) {
             style: { ...(getStyle(child.context) || {}), ...childStyle },
             on: {
               click: e => {
-                // todo
-                child.props && child.props.onClick && child.props.onClick(e)
+                // child.props && child.props.onClick && child.props.onClick(e)
                 if (spec.focusOnSelect) {
                   spec.focusOnSelect(childOnClickOptions)
                 }
@@ -202,7 +199,6 @@ const renderSlides = function (spec, children, createElement) {
       }
     }
   })
-
   if (spec.rtl) {
     return preCloneSlides.concat(slides, postCloneSlides).reverse()
   } else {

@@ -47,13 +47,13 @@ export const PrevArrow = {
     }
     let prevArrow
 
-    if (prevArrow) {
-      prevArrow = cloneElement(prevArrow, {
+    if (props.prevArrow) {
+      prevArrow = cloneElement(props.prevArrow(createElement, {
         ...prevArrowProps,
         ...{
           props: customProps,
         },
-      })
+      }), {})
     } else {
       prevArrow = (
         <button key='0' type='button' {...prevArrowProps}>
@@ -108,13 +108,13 @@ export const NextArrow = {
     }
     let nextArrow
 
-    if (nextArrow) {
-      nextArrow = cloneElement(nextArrow, {
+    if (props.nextArrow) {
+      nextArrow = cloneElement(props.nextArrow(createElement, {
         ...nextArrowProps,
         ...{
           props: customProps,
         },
-      })
+      }), {})
     } else {
       nextArrow = (
         <button key='1' type='button' {...nextArrowProps}>

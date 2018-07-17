@@ -7,16 +7,23 @@ export default {
       props: {
         dots: true,
         infinite: true,
-        speed: 500,
-        slidesToShow: 1,
+        slidesToShow: 3,
         slidesToScroll: 1,
+        vertical: true,
+        verticalSwiping: true,
+        beforeChange: function (currentSlide, nextSlide) {
+          console.log('before change', currentSlide, nextSlide)
+        },
+        afterChange: function (currentSlide) {
+          console.log('after change', currentSlide)
+        },
       },
     }
     return (
-      <div style={{ width: '80%', margin: '0 auto' }}>
-        <h2> Single Item</h2>
+      <div>
+        <h2>Vertical Mode</h2>
         <Slider {...settings}>
-          <div onClick={(e) => alert(e)}>
+          <div>
             <h3>1</h3>
           </div>
           <div>
