@@ -51,12 +51,13 @@ export const UploadLocale = PropsTypes.shape({
   uploadError: PropsTypes.string,
   previewFile: PropsTypes.string,
 }).loose
+
 export const UploadProps = {
   type: PropsTypes.oneOf(['drag', 'select']),
   name: PropsTypes.string,
   defaultFileList: PropsTypes.arrayOf(PropsTypes.custom(UploadFile)),
   fileList: PropsTypes.arrayOf(PropsTypes.custom(UploadFile)),
-  action: PropsTypes.string.isRequired,
+  action: PropsTypes.string,
   data: PropsTypes.oneOfType([PropsTypes.object, PropsTypes.func]),
   headers: PropsTypes.object,
   showUploadList: PropsTypes.oneOfType([PropsTypes.bool, ShowUploadListInterface]),
