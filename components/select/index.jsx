@@ -5,7 +5,7 @@ import LocaleReceiver from '../locale-provider/LocaleReceiver'
 import defaultLocale from '../locale-provider/default'
 import { getComponentFromProp, getOptionProps, filterEmpty } from '../_util/props-util'
 
-const AbstractSelectProps = {
+const AbstractSelectProps = () => ({
   prefixCls: PropTypes.string,
   size: PropTypes.oneOf(['small', 'large', 'default']),
   notFoundContent: PropTypes.any,
@@ -28,7 +28,7 @@ const AbstractSelectProps = {
   autoFocus: PropTypes.bool,
   backfill: PropTypes.bool,
   showArrow: PropTypes.bool,
-}
+})
 const Value = PropTypes.shape({
   key: PropTypes.string,
 }).loose
@@ -45,7 +45,7 @@ const SelectValue = PropTypes.oneOfType([
 ])
 
 const SelectProps = {
-  ...AbstractSelectProps,
+  ...AbstractSelectProps(),
   value: SelectValue,
   defaultValue: SelectValue,
   mode: PropTypes.oneOf(['default', 'multiple', 'tags', 'combobox']),
@@ -64,6 +64,7 @@ const SelectProps = {
   getPopupContainer: PropTypes.func,
   tokenSeparators: PropTypes.arrayOf(PropTypes.string),
   getInputElement: PropTypes.func,
+  options: PropTypes.array,
 }
 
 const SelectPropTypes = {
@@ -121,6 +122,7 @@ export default {
         prefixCls,
         size,
         mode,
+        options,
         ...restProps
       } = getOptionProps(this)
       const cls = {
@@ -157,7 +159,14 @@ export default {
 
       return (
         <VcSelect {...selectProps}>
-          {filterEmpty(this.$slots.default)}
+          {
+            options
+              ? options.map((option) => {
+                const { key, label = option.title, ...restOption } = option
+                return <Option key={key} {...{ props: restOption }}>{label}</Option>
+              })
+              : filterEmpty(this.$slots.default)
+          }
         </VcSelect>
       )
     },

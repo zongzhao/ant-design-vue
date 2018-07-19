@@ -1,11 +1,12 @@
 <script>
-import * as AllDemo from '../demo'
+import AllDemo from '../demo'
 import Header from './header'
 import zhCN from 'antd/locale-provider/zh_CN'
 import enUS from 'antd/locale-provider/default'
-import _ from 'lodash'
+import sortBy from 'lodash/sortBy'
 import { isZhCN } from '../util'
 import { Provider, create } from '../../components/_util/store'
+import NProgress from 'nprogress'
 
 const docsList = [
   { key: 'introduce', enTitle: 'Ant Design of Vue', title: 'Ant Design of Vue' },
@@ -19,6 +20,8 @@ const docsList = [
 export default {
   props: {
     name: String,
+    showDemo: Boolean,
+    showApi: Boolean,
   },
   data () {
     this.store = create({
@@ -29,13 +32,25 @@ export default {
       currentSubMenu: [],
     }
   },
+  provide () {
+    return {
+      demoContext: this,
+    }
+  },
   beforeDestroy () {
     if (this.unsubscribe) {
       this.unsubscribe()
     }
+    clearTimeout(this.timer)
   },
   mounted () {
     this.addSubMenu()
+    const nprogressHiddenStyle = document.getElementById('nprogress-style')
+    if (nprogressHiddenStyle) {
+      this.timer = setTimeout(() => {
+        nprogressHiddenStyle.parentNode.removeChild(nprogressHiddenStyle)
+      }, 0)
+    }
   },
   watch: {
     '$route.path': function () {
@@ -70,24 +85,14 @@ export default {
       const lis = []
       currentSubMenu.forEach(({ cnTitle, usTitle, id }) => {
         const title = isCN ? cnTitle : usTitle
-        const className = decodeURIComponent(window.location.hash) === `#${id}` ? 'current' : ''
-        lis.push(<li title={title}><a href={`#${id}`} class={className}>{title}</a></li>)
+        lis.push(<a-anchor-link href={`#${id}`} title={title} />)
       })
       const showApi = this.$route.path.indexOf('/components/') !== -1
       return (
-        <a-affix>
-          <ul id='demo-toc' class='toc'>
-            {lis}
-            {showApi ? <li title='API' key='API'>
-              <a
-                href='#API'
-                class={{
-                  current: window.location.hash === '#API',
-                }}
-              >API</a>
-            </li> : ''}
-          </ul>
-        </a-affix>
+        <a-anchor>
+          {lis}
+          {showApi ? <a-anchor-link title='API' href='#API' /> : ''}
+        </a-anchor>
       )
     },
     getDocsMenu (isCN) {
@@ -116,7 +121,11 @@ export default {
       }
       document.title = titleStr
     },
+    mountedCallback () {
+      NProgress.done()
+    },
   },
+
   render () {
     const name = this.name
     const isCN = isZhCN(name)
@@ -136,15 +145,22 @@ export default {
       const type = d.type || 'Other'
       const key = `${title.replace(/(\B[A-Z])/g, '-$1').toLowerCase()}`
       titleMap[key] = title
+      AllDemo[title].key = key
       menuConfig[type] = menuConfig[type] || []
       menuConfig[type].push(d)
     }
     const reName = name.replace(/-cn\/?$/, '')
-    const Demo = AllDemo[titleMap[reName]]
+    // const Demo = new Vue({
+    //   template: '<demo-component/>',
+    //   components: {
+    //     'demo-component': () => import(`../../components/${AllDemo[titleMap[reName]].key}/demo/index.vue`),
+    //   },
+    // })
+    // AllDemo[titleMap[reName]]
     const MenuGroup = []
     for (const [type, menus] of Object.entries(menuConfig)) {
       const MenuItems = []
-      _.sortBy(menus, ['title']).forEach(({ title, subtitle }) => {
+      sortBy(menus, ['title']).forEach(({ title, subtitle }) => {
         const linkValue = isCN
           ? [<span>{title}</span>, <span class='chinese'>{subtitle}</span>]
           : [<span>{title}</span>]
@@ -167,7 +183,8 @@ export default {
     if (!isCN) {
       locale = enUS
     }
-    this.resetDocumentTitle(Demo, reName, isCN)
+    const config = AllDemo[titleMap[reName]]
+    this.resetDocumentTitle(config, reName, isCN)
     return (
       <div class='page-wrapper'>
         <Header searchData={searchData} name={name}/>
@@ -189,20 +206,36 @@ export default {
               </a-col>
               <a-col span={18}>
                 <div class='content main-container'>
-                  <div class='toc-affix' style='width: 110px;'>
+                  <div class='toc-affix' style='width: 120px;'>
                     {this.getSubMenu(isCN)}
                   </div>
-                  {Demo ? <Provider store={this.store}>
-                    <Demo key={isCN ? 'cn' : 'en'}/>
+                  {this.showDemo ? <Provider store={this.store} key={isCN ? 'cn' : 'en'}>
+                    <router-view
+                      class={`demo-cols-${config.cols || 2}`}
+                      {...{ directives: [
+                        {
+                          name: 'mountedCallback',
+                          value: this.mountedCallback,
+                        },
+                      ] }}
+                    ></router-view>
                   </Provider> : ''}
-                  <div class='markdown api-container' ref='doc'>
-                    <router-view></router-view>
-                  </div>
+                  {this.showApi ? <div class='markdown api-container' ref='doc'>
+                    <router-view
+                      {...{ directives: [
+                        {
+                          name: 'mountedCallback',
+                          value: this.mountedCallback,
+                        },
+                      ] }}
+                    ></router-view>
+                  </div> : ''}
                 </div>
               </a-col>
             </a-row>
           </div>
         </a-locale-provider>
+        { name.indexOf('back-top') === -1 ? <a-back-top /> : null }
       </div>
     )
   },
