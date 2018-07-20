@@ -12,7 +12,7 @@ export default {
         slidesToScroll: 1,
       },
       scopedSlots: {
-        customPaging: (h, { i }) => {
+        customPaging: ({ i }) => {
           return (
             <div
               style={{
@@ -25,7 +25,7 @@ export default {
             </div>
           )
         },
-        appendDots: (h, { dots }) => {
+        appendDots: ({ dots }) => {
           return (
             <div
               style={{

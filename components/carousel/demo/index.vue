@@ -3,6 +3,7 @@ import Basic from './basic'
 import Fade from './fade'
 import Autoplay from './autoplay'
 import Vertical from './vertical'
+import CustomPaging from './customPaging'
 
 import CN from '../index.zh-CN.md'
 import US from '../index.en-US.md'
@@ -40,6 +41,7 @@ export default {
         <Vertical />
         <Fade />
         <Autoplay />
+        <CustomPaging />
         <api>
           <CN slot='cn' />
           <US />

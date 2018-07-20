@@ -1,7 +1,10 @@
 import '../assets/index.less'
 import Slider from '../src/slider'
-// import { baseUrl } from './config'
-const baseUrl = 'https://s3.amazonaws.com/static.neostack.com/img/react-slick'
+import imgList from './imglist'
+
+const {
+  abstract01, abstract02, abstract03, abstract04,
+} = imgList
 
 export default {
   render () {
@@ -20,16 +23,16 @@ export default {
         <h2>Fade</h2>
         <Slider {...settings}>
           <div>
-            <img src={baseUrl + '/abstract01.jpg'} />
+            <img src={abstract01} />
           </div>
           <div>
-            <img src={baseUrl + '/abstract02.jpg'} />
+            <img src={abstract02} />
           </div>
           <div>
-            <img src={baseUrl + '/abstract03.jpg'} />
+            <img src={abstract03} />
           </div>
           <div>
-            <img src={baseUrl + '/abstract04.jpg'} />
+            <img src={abstract04} />
           </div>
         </Slider>
       </div>

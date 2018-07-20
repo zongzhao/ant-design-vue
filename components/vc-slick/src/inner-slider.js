@@ -80,8 +80,11 @@ export default {
         ...this.$data,
       }
       this.updateState(spec, setTrackStyle, () => {
-        if (this.autoplay) this.handleAutoPlay('update')
-        else this.pause('paused')
+        if (this.autoplay) {
+          this.handleAutoPlay('update')
+        } else {
+          this.pause('paused')
+        }
       })
       // animating state should be cleared while resizing, otherwise autoplay stops working
       this.setState({
@@ -469,6 +472,12 @@ export default {
       this.autoplaying === 'focused' &&
       this.handleAutoPlay('blur')
     },
+    customPaging ({ i }) {
+      return <button>{i + 1}</button>
+    },
+    appendDots ({ dots }) {
+      return <ul style={{ display: 'block' }}>{dots}</ul>
+    },
   },
   beforeMount () {
     this.ssrInit()
@@ -715,10 +724,11 @@ export default {
         'slidesToScroll',
         'clickHandler',
         'children',
-        'customPaging',
         'infinite',
         'appendDots',
       ])
+      dotProps.customPaging = this.customPaging
+      dotProps.appendDots = this.appendDots
       const { customPaging, appendDots } = this.$scopedSlots
       if (customPaging) {
         dotProps.customPaging = customPaging
@@ -748,8 +758,6 @@ export default {
       'currentSlide',
       'slideCount',
       'slidesToShow',
-      'prevArrow',
-      'nextArrow',
     ])
     arrowProps.clickHandler = this.changeSlide
     const { prevArrow: prevArrowCustom, nextArrow: nextArrowCustom } = this.$scopedSlots

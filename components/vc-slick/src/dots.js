@@ -67,14 +67,14 @@ export default {
       }
       return (
         <li key={i} class={className}>
-          {cloneElement(customPaging(createElement, { i }), { on: {
+          {cloneElement(customPaging({ i }), { on: {
             click: onClick,
           }})}
         </li>
       )
     })
 
-    return cloneElement(appendDots(createElement, { dots }), {
+    return cloneElement(appendDots({ dots }), {
       class: dotsClass,
       on: {
         ...mouseEvents,

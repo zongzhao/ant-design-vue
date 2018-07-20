@@ -48,7 +48,7 @@ export const PrevArrow = {
     let prevArrow
 
     if (props.prevArrow) {
-      prevArrow = cloneElement(props.prevArrow(createElement, {
+      prevArrow = cloneElement(props.prevArrow({
         ...prevArrowProps,
         ...{
           props: customProps,
@@ -109,7 +109,7 @@ export const NextArrow = {
     let nextArrow
 
     if (props.nextArrow) {
-      nextArrow = cloneElement(props.nextArrow(createElement, {
+      nextArrow = cloneElement(props.nextArrow({
         ...nextArrowProps,
         ...{
           props: customProps,

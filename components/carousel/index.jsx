@@ -145,6 +145,7 @@ export default {
         prevArrow: getComponentFromProp(this, 'prevArrow'),
       },
       on: $listeners,
+      scopedSlots: this.$scopedSlots,
     }
 
     return (

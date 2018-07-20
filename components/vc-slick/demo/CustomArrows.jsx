@@ -9,7 +9,9 @@ export default {
         infinite: true,
         slidesToShow: 3,
         slidesToScroll: 1,
-        nextArrow: (h, props) => {
+      },
+      scopedSlots: {
+        nextArrow: (props) => {
           const { class: className, style, on: { click }} = props
           return (
             <div
@@ -19,9 +21,7 @@ export default {
             />
           )
         },
-      },
-      scopedSlots: {
-        prevArrow: (h, props) => {
+        prevArrow: (props) => {
           const { class: className, style, on: { click }} = props
           return (
             <div
